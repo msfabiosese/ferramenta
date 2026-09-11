@@ -1,0 +1,16 @@
+{
+  "updatedAt": 1789146780342,
+  "tools": {
+    "count-back": 1789146770187,
+    "menor-igual-2cx": 1789133210072,
+    "inventario-ila": 1789135845141,
+    "oracle-parser": 1789135850589,
+    "posicoes-vazias": 1789135864596,
+    "ocupacao-estoque": 1789135873077,
+    "porta-paletes": 1789135877300,
+    "galpao-externo": 1789146773270,
+    "acuracidade-ajustes": 1789146775847,
+    "backlog-embalagens": 1789146777440,
+    "relatorio-negativos": 1789146780335
+  }
+}
