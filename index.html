@@ -437,13 +437,13 @@ const CATALOG = [
     group: "Inventário & Contagem",
     color: "--c1", colorSoft: "--c1-soft",
     tools: [
-      { id:"count-back", code:"01", icon:"📊", title:"Count Back", file:"tools/count-back.html",
+      { id:"count-back", code:"01", icon:"📊", title:"Count Back", file:"count-back.html",
         desc:"Dashboard de inventário para conferência de contagens (count back) a partir de planilha Excel." },
-      { id:"menor-igual-2cx", code:"02", icon:"📦", title:"Inventário ≤ 2 CX", file:"tools/menor-igual-2cx.html",
+      { id:"menor-igual-2cx", code:"02", icon:"📦", title:"Inventário ≤ 2 CX", file:"menor-igual-2cx.html",
         desc:"Painel de contagem focado em posições com 2 caixas ou menos." },
-      { id:"inventario-ila", code:"03", icon:"🗂️", title:"Painel de Inventário (ILA)", file:"tools/inventario-ila.html",
+      { id:"inventario-ila", code:"03", icon:"🗂️", title:"Painel de Inventário (ILA)", file:"inventario-ila.html",
         desc:"Cruza layout de endereços com a contagem física para o inventário ILA." },
-      { id:"oracle-parser", code:"04", icon:"🧾", title:"Oracle Inventory Parser", file:"tools/oracle-parser.html",
+      { id:"oracle-parser", code:"04", icon:"🧾", title:"Oracle Inventory Parser", file:"oracle-parser.html",
         desc:"Leitor/organizador de extrações de inventário direto do Oracle." },
     ]
   },
@@ -451,13 +451,13 @@ const CATALOG = [
     group: "Posições & Ocupação",
     color: "--c2", colorSoft: "--c2-soft",
     tools: [
-      { id:"posicoes-vazias", code:"05", icon:"🈳", title:"Posições Vazias", file:"tools/posicoes-vazias.html",
+      { id:"posicoes-vazias", code:"05", icon:"🈳", title:"Posições Vazias", file:"posicoes-vazias.html",
         desc:"Acuracidade das posições, divergências de estoque e caixas em endereços que deveriam estar vazios." },
-      { id:"ocupacao-estoque", code:"06", icon:"🏭", title:"Ocupação de Estoque", file:"tools/ocupacao-estoque.html",
+      { id:"ocupacao-estoque", code:"06", icon:"🏭", title:"Ocupação de Estoque", file:"ocupacao-estoque.html",
         desc:"Ocupação do estoque por família de produto, cruzando capacidade e saldo." },
-      { id:"porta-paletes", code:"07", icon:"🪜", title:"Ocupação — Porta-Paletes", file:"tools/porta-paletes.html",
+      { id:"porta-paletes", code:"07", icon:"🪜", title:"Ocupação — Porta-Paletes", file:"porta-paletes.html",
         desc:"Painel de ocupação específico das posições em porta-paletes." },
-      { id:"galpao-externo", code:"08", icon:"🚚", title:"Galpão Externo", file:"tools/galpao-externo.html",
+      { id:"galpao-externo", code:"08", icon:"🚚", title:"Galpão Externo", file:"galpao-externo.html",
         desc:"Identifica candidatos a remanejamento para o galpão externo." },
     ]
   },
@@ -465,11 +465,11 @@ const CATALOG = [
     group: "Qualidade & Backlog",
     color: "--c3", colorSoft: "--c3-soft",
     tools: [
-      { id:"acuracidade-ajustes", code:"09", icon:"🎯", title:"Acuracidade — Ajustes Cíclicos", file:"tools/acuracidade-ajustes.html",
+      { id:"acuracidade-ajustes", code:"09", icon:"🎯", title:"Acuracidade — Ajustes Cíclicos", file:"acuracidade-ajustes.html",
         desc:"Acompanha a acuracidade dos ajustes cíclicos de inventário." },
-      { id:"backlog-embalagens", code:"10", icon:"⏱️", title:"Permanência de Embalagens", file:"tools/backlog-embalagens.html",
+      { id:"backlog-embalagens", code:"10", icon:"⏱️", title:"Permanência de Embalagens", file:"backlog-embalagens.html",
         desc:"Backlog e tempo de permanência de embalagens em aberto." },
-      { id:"relatorio-negativos", code:"11", icon:"🔧", title:"Relatório de Negativos", file:"tools/relatorio-negativos.html",
+      { id:"relatorio-negativos", code:"11", icon:"🔧", title:"Relatório de Negativos", file:"relatorio-negativos.html",
         desc:"Confronta shortage (saldo MON) contra a base MAKE / Comprado." },
     ]
   }
