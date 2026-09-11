@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Acuracidade — Ajustes Cíclicos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#0F151B;
+  --panel:#1A222A;
+  --panel-hi:#212C36;
+  --border:#2C3945;
+  --border-soft:#232E38;
+  --text:#EDF1F4;
+  --text-dim:#8D9BA8;
+  --text-faint:#5D6B78;
+  --amber:#FF8A3D;
+  --teal:#3FD1A5;
+  --red:#F0555C;
+  --blue:#6FA8FF;
+  --track:#28333D;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body{
+  background:
+    radial-gradient(1100px 500px at 15% -10%, rgba(255,138,61,0.07), transparent),
+    radial-gradient(900px 500px at 100% 0%, rgba(63,209,165,0.06), transparent),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.5;
+  padding:0 0 60px 0;
+}
+
+.page{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+/* ---------- Tag motif ---------- */
+.tag{
+  position:relative;
+  background:var(--panel);
+  border:1px solid var(--border);
+  clip-path:polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+}
+.tag::before{
+  content:"";
+  position:absolute;
+  top:9px; right:9px;
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--bg);
+  border:1px solid var(--border);
+}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:28px 0 22px 0;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:28px;
+  flex-wrap:wrap; gap:14px;
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-mark{
+  width:34px; height:34px;
+  background:var(--amber);
+  clip-path:polygon(0 0, 74% 0, 100% 26%, 100% 100%, 0 100%);
+  position:relative;
+  flex-shrink:0;
+}
+.brand-mark::after{
+  content:"";
+  position:absolute; top:5px; right:5px;
+  width:4px; height:4px; border-radius:50%;
+  background:var(--bg);
+}
+.brand-text h1{
+  font-family:var(--font-display);
+  font-size:19px; font-weight:600; letter-spacing:0.2px;
+}
+.brand-text p{
+  font-family:var(--font-mono);
+  font-size:11px; color:var(--text-dim);
+  letter-spacing:0.5px; text-transform:uppercase; margin-top:2px;
+}
+.period-pill{
+  font-family:var(--font-mono);
+  font-size:12px; color:var(--text-dim);
+  border:1px solid var(--border); border-radius:20px;
+  padding:7px 14px;
+  display:flex; align-items:center; gap:8px;
+}
+.period-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--teal);}
+
+/* ---------- Section titles ---------- */
+.section-title{
+  font-family:var(--font-display);
+  font-size:13px; font-weight:600;
+  text-transform:uppercase; letter-spacing:1.2px;
+  color:var(--text-dim);
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:16px;
+}
+.section-title::before{
+  content:""; width:16px; height:2px; background:var(--amber);
+}
+.section-note{
+  font-family:var(--font-mono); font-size:11px; color:var(--text-faint);
+  margin-top:-8px; margin-bottom:18px;
+}
+
+section{margin-bottom:44px;}
+
+/* ---------- Hero ---------- */
+.hero{
+  display:grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap:16px;
+  margin-bottom:44px;
+}
+.hero-main{
+  padding:28px 30px;
+  display:flex; flex-direction:column; justify-content:center;
+  gap:10px;
+}
+.hero-main .hero-label{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--text-dim);
+}
+.hero-value-row{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+.hero-value{
+  font-family:var(--font-display); font-weight:700;
+  font-size:64px; line-height:1; color:var(--teal);
+  letter-spacing:-1px;
+}
+.hero-sub{font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim);}
+.hero-status{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--font-mono); font-size:11.5px; font-weight:500;
+  color:var(--teal); background:rgba(63,209,165,0.1);
+  border:1px solid rgba(63,209,165,0.35);
+  padding:5px 11px; border-radius:20px; width:fit-content;
+}
+
+.hero-stats{display:flex; flex-direction:column; gap:16px;}
+.stat-card{
+  padding:16px 20px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  flex:1;
+}
+.stat-card .stat-label{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.8px;
+  text-transform:uppercase; color:var(--text-dim); max-width:150px;
+}
+.stat-card .stat-value{
+  font-family:var(--font-display); font-size:26px; font-weight:600;
+  text-align:right;
+}
+
+/* ---------- Curve cards ---------- */
+.curve-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+}
+.curve-card{padding:22px; display:flex; align-items:center; gap:18px;}
+.curve-ring{
+  position:relative; width:88px; height:88px; flex-shrink:0;
+  border-radius:50%;
+}
+.curve-ring::after{
+  content:""; position:absolute; inset:9px;
+  border-radius:50%; background:var(--panel);
+}
+.curve-ring-value{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:16px; font-weight:600; z-index:2;
+}
+.curve-info{flex:1; min-width:0;}
+.curve-info .curve-name{
+  font-family:var(--font-mono); font-size:11px; color:var(--text-dim);
+  letter-spacing:0.6px; text-transform:uppercase; margin-bottom:4px;
+}
+.curve-info .curve-letter{
+  font-family:var(--font-display); font-size:22px; font-weight:700; margin-bottom:8px;
+}
+.curve-metrics{display:flex; flex-direction:column; gap:3px;}
+.curve-metrics span{font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim);}
+.curve-metrics b{color:var(--text); font-weight:500;}
+
+/* ---------- Chart panel ---------- */
+.chart-panel{
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:10px; padding:22px 22px 10px 8px;
+}
+.chart-legend{
+  display:flex; gap:22px; padding:0 14px 14px 14px; flex-wrap:wrap;
+}
+.chart-legend .item{
+  display:flex; align-items:center; gap:7px;
+  font-family:var(--font-mono); font-size:11px; color:var(--text-dim);
+}
+.chart-legend .sw{width:10px; height:10px; border-radius:2px;}
+.chart-canvas-wrap{height:300px; padding:0 10px;}
+
+/* ---------- Motivos ---------- */
+.motivo-list{display:flex; flex-direction:column; gap:12px;}
+.motivo-row{
+  background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:16px 20px;
+}
+.motivo-top{
+  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px; gap:12px; flex-wrap:wrap;
+}
+.motivo-name{font-family:var(--font-display); font-size:14.5px; font-weight:600;}
+.motivo-figs{font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim); white-space:nowrap;}
+.motivo-figs b{color:var(--text); font-weight:500;}
+.motivo-bar-track{
+  height:8px; background:var(--track); border-radius:6px; overflow:hidden;
+}
+.motivo-bar-fill{height:100%; border-radius:6px;}
+
+/* ---------- Detail table ---------- */
+.filter-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  margin-bottom:16px; flex-wrap:wrap;
+}
+.tabs{display:flex; gap:8px; flex-wrap:wrap;}
+.tab-btn{
+  font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.4px;
+  color:var(--text-dim); background:var(--panel); border:1px solid var(--border);
+  padding:8px 14px; border-radius:20px; cursor:pointer; transition:all .15s ease;
+}
+.tab-btn:hover{color:var(--text); border-color:var(--text-faint);}
+.tab-btn.active{color:var(--bg); background:var(--amber); border-color:var(--amber); font-weight:600;}
+.search-input{
+  font-family:var(--font-mono); font-size:12px; color:var(--text);
+  background:var(--panel); border:1px solid var(--border); border-radius:20px;
+  padding:8px 16px; width:220px; outline:none;
+}
+.search-input::placeholder{color:var(--text-faint);}
+.search-input:focus{border-color:var(--amber);}
+
+.table-wrap{
+  background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  overflow:auto; max-height:480px;
+}
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+thead th{
+  position:sticky; top:0; background:var(--panel-hi);
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.5px;
+  text-transform:uppercase; color:var(--text-dim); text-align:left;
+  padding:12px 14px; border-bottom:1px solid var(--border); white-space:nowrap;
+}
+tbody td{
+  padding:11px 14px; border-bottom:1px solid var(--border-soft);
+  color:var(--text); vertical-align:top;
+}
+tbody tr:hover{background:rgba(255,255,255,0.02);}
+tbody tr:last-child td{border-bottom:none;}
+td.mono{font-family:var(--font-mono); font-size:12px; white-space:nowrap;}
+td.num{font-family:var(--font-mono); font-size:12px; text-align:right; white-space:nowrap;}
+td.desc{max-width:260px; color:var(--text-dim); font-size:12px;}
+.curve-chip{
+  display:inline-block; font-family:var(--font-mono); font-size:10.5px; font-weight:600;
+  padding:2px 8px; border-radius:10px; letter-spacing:0.3px;
+}
+.motivo-chip{
+  display:inline-block; font-size:11.5px; color:var(--text-dim);
+}
+.pos{color:var(--teal);} .neg{color:var(--red);}
+.empty-row td{text-align:center; color:var(--text-faint); padding:30px; font-family:var(--font-mono);}
+
+/* ---------- Footer ---------- */
+footer{
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border-soft);
+  font-family:var(--font-mono); font-size:11px; color:var(--text-faint); line-height:1.7;
+}
+footer strong{color:var(--text-dim);}
+
+/* ---------- Responsive ---------- */
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;}
+  .hero-stats{flex-direction:column;}
+  .curve-grid{grid-template-columns:1fr;}
+  .hero-value{font-size:48px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <h1>Painel de Acuracidade</h1>
+        <p>Ajustes Cíclicos de Inventário</p>
+      </div>
+    </div>
+    <div class="period-pill"><span class="dot"></span>Jan — Jun / 2026</div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-main tag">
+      <div class="hero-label">Acuracidade Geral</div>
+      <div class="hero-value-row">
+        <span class="hero-value" id="heroValue">—</span>
+        <span class="hero-sub">1 − (Σ Divergência Abs. ÷ Σ Valor Teórico)</span>
+      </div>
+      <div class="hero-status" id="heroStatus">—</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card tag">
+        <span class="stat-label">Itens ajustados no período</span>
+        <span class="stat-value" id="statItens">—</span>
+      </div>
+      <div class="stat-card tag">
+        <span class="stat-label">Valor teórico em contagem</span>
+        <span class="stat-value" id="statTeorico">—</span>
+      </div>
+      <div class="stat-card tag">
+        <span class="stat-label">Valor da divergência absoluta</span>
+        <span class="stat-value" id="statAbs">—</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Acuracidade por curva</div>
+    <div class="section-note">Curvas C e D agrupadas — baixo giro / baixo valor unitário</div>
+    <div class="curve-grid" id="curveGrid"></div>
+  </section>
+
+  <section>
+    <div class="section-title">Evolução mensal</div>
+    <div class="section-note">Barras: valor da divergência absoluta (R$) · Linha: acuracidade do mês · Meta 95%</div>
+    <div class="chart-panel">
+      <div class="chart-legend">
+        <span class="item"><span class="sw" style="background:var(--amber)"></span>Divergência Abs. (R$)</span>
+        <span class="item"><span class="sw" style="background:var(--teal); border-radius:50%"></span>Acuracidade</span>
+        <span class="item"><span class="sw" style="background:var(--text-faint); border-radius:50%"></span>Meta 95%</span>
+      </div>
+      <div class="chart-canvas-wrap" id="monthChartWrap"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Motivos das divergências</div>
+    <div class="section-note">Agrupado pela coluna Z — Tipo de Ocorrência, ordenado por valor</div>
+    <div class="motivo-list" id="motivoList"></div>
+  </section>
+
+  <section>
+    <div class="section-title">Detalhamento dos itens ajustados</div>
+    <div class="filter-bar">
+      <div class="tabs" id="curveTabs"></div>
+      <input class="search-input" id="searchInput" placeholder="Buscar código, item ou descrição…">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Cód. Inv.</th><th>Curva</th><th>Data</th><th>Item</th><th>Descrição</th>
+            <th>Qtd. Ajuste</th><th>Valor Dif.</th><th>Motivo</th><th>Decisão tomada</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <strong>Metodologia:</strong> a base contém apenas itens já identificados como divergentes na contagem cíclica (não inclui a população total contada). A acuracidade é calculada como 1 − (Σ valor da divergência absoluta ÷ Σ valor teórico) para o grupo em questão. Meta de referência: 95%. Curvas C e D foram agrupadas em "C-D" por representarem itens de menor valor/giro.
+  </footer>
+
+</div>
+
+<script>
+const RECORDS = [
+{cod:"01-283",curva:"A",data:"2026-01-26",item:"167800",desc:"FREIO LD - CONJUNTO ANTERIOR - REG. AUTOM.",qtd:-1,teorico:16839.853607278,dif:-1683.9853607278,abs:1683.9853607278,motivo:"Erro de devolução",decisao:"Realizamos o ajuste cíclico de -1 pç"},
+{cod:"02-146",curva:"D",data:"2026-02-09",item:"5X888",desc:"VEDADOR EM \"O\"",qtd:-150,teorico:0,dif:-159.81423799226852,abs:159.81423799226852,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -150 pçs."},
+{cod:"02-345",curva:"C",data:"2026-02-25",item:"3237Z1300",desc:"SENSOR-CONJUNTO",qtd:100,teorico:19107.581937348303,dif:1738.63347928556,abs:1738.63347928556,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de +100 pçs."},
+{cod:"03-228",curva:"C",data:"2026-03-17",item:"139826",desc:"COROA HIPOIDE (BRUTA)",qtd:-3,teorico:169476.6517884244,dif:-6200.365309332601,abs:6200.365309332601,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -3 pçs"},
+{cod:"03-229",curva:"B",data:"2026-03-17",item:"139826N",desc:"COROA HIPOIDE BRUTA (NORMALIZADA)",qtd:4,teorico:0,dif:7876.76,abs:7876.76,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de +4 pçs"},
+{cod:"03-256",curva:"B",data:"2026-03-18",item:"3235P3604",desc:"CAIXA DOS SATÉLITES LD - FUNDIDA (ACABADA)",qtd:-33,teorico:18508.16079069433,dif:-6497.5458094990745,abs:6497.5458094990745,motivo:"Erro operacional",decisao:"Realizamos o ajuste cíclico de -33 pçs"},
+{cod:"04-053",curva:"A",data:"2026-04-07",item:"3213B2186",desc:"EXTENSÃO (SEMI-ACABADA)",qtd:-4,teorico:3186588.421810005,dif:-684.110867713612,abs:684.110867713612,motivo:"Erro operacional",decisao:"Realizamos o ajuste cíclico de -4 pçs"},
+{cod:"04-089",curva:"D",data:"2026-04-08",item:"2297T8704",desc:"FITA ISOLANTE SCOTCH 3M - 33+",qtd:-100,teorico:74106.2591434554,dif:-120.970060632477,abs:120.970060632477,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -100 pçs"},
+{cod:"04-090",curva:"B",data:"2026-04-08",item:"3235N3602",desc:"CAIXA DOS SATÉLITES LD - FUNDIDA (BRUTO)",qtd:-5,teorico:609.52371839967,dif:-609.52371839967,abs:609.52371839967,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -5 pçs"},
+{cod:"04-188",curva:"C",data:"2026-04-15",item:"2203B8920",desc:"ESPAÇADOR DOS ROLS DO PINHÃO",qtd:-40,teorico:430.11789473683996,dif:-430.11789473683996,abs:430.11789473683996,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -40 pçs"},
+{cod:"04-321",curva:"B",data:"2026-04-28",item:"A 3226N1236",desc:"CAIXA DO PINHÃO-CONJUNTO",qtd:12,teorico:68603.18028320481,dif:2457.427353428232,abs:2457.427353428232,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de +12 pçs"},
+{cod:"04-322",curva:"B",data:"2026-04-28",item:"3235P3604",desc:"CAIXA DOS SATÉLITES LD - FUNDIDA (ACABADA)",qtd:1,teorico:30125.626534430336,dif:196.899519832878,abs:196.899519832878,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de +1 pç"},
+{cod:"05-164",curva:"B",data:"2026-05-14",item:"098422",desc:"ROLAMENTO-CAPA",qtd:-18,teorico:6987.914937355953,dif:-722.887752140271,abs:722.887752140271,motivo:"Erro operacional",decisao:"Realizamos o ajuste cíclico de -18 pçs"},
+{cod:"05-165",curva:"B",data:"2026-05-14",item:"A 3226N1236",desc:"CAIXA DO PINHÃO-CONJUNTO",qtd:-12,teorico:65287.9358113694,dif:-2433.090775578984,abs:2433.090775578984,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -12 pçs"},
+{cod:"05-166",curva:"B",data:"2026-05-14",item:"3235P3604",desc:"CAIXA DOS SATÉLITES LD - FUNDIDA (ACABADA)",qtd:-1,teorico:29141.3301292035,dif:-196.900879251375,abs:196.900879251375,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -1 pç"},
+{cod:"05-279",curva:"B",data:"2026-05-25",item:"098084",desc:"ROLAMENTO-CAPA",qtd:12,teorico:2454.726846822234,dif:283.2377130948732,abs:283.2377130948732,motivo:"Erro de fornecedor",decisao:"Realizamos o ajuste físico de +12 pçs"},
+{cod:"05-312",curva:"A",data:"2026-05-29",item:"3235S2437",desc:"CAIXA DOS SATÉLITES LE (ACABADA)",qtd:34,teorico:12914.662826715658,dif:14164.468906720398,abs:14164.468906720398,motivo:"Erro de transferência",decisao:"Realizamos o ajuste físico de +34 pçs"},
+{cod:"05-313",curva:"C",data:"2026-05-29",item:"2203Y9593",desc:"ESPAÇADOR DOS ROLS DO PINHÃO *19,16*",qtd:-6,teorico:775.8063157894736,dif:-58.18547368421052,abs:58.18547368421052,motivo:"Erro de transferência",decisao:"Realizamos o ajuste físico de -6 pçs"},
+{cod:"05-315",curva:"C",data:"2026-05-29",item:"950022",desc:"MOLA DO MECANISMO",qtd:-122,teorico:6997.181834920961,dif:-560.877913180261,abs:560.877913180261,motivo:"Erro de transferência",decisao:"Realizamos o ajuste físico de -122 pçs"},
+{cod:"05-316",curva:"C",data:"2026-05-29",item:"992910",desc:"ESPAÇADOR PARA TRANSPORTE",qtd:-220,teorico:5231.726349190278,dif:-974.5806916357841,abs:974.5806916357841,motivo:"Erro de transferência",decisao:"Realizamos o ajuste físico de -220 pçs"},
+{cod:"06-326",curva:"C",data:"2026-06-10",item:"40X1236",desc:"PORCA SEXTAVADA AUTOTRAVANTE M32x1,5-6H",qtd:-143,teorico:8629.21758071288,dif:-1949.412502435927,abs:1949.412502435927,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -143 pçs"},
+{cod:"06-328",curva:"C",data:"2026-06-10",item:"3264Z1274",desc:"DEFLETOR DE PÓ DO VEDADOR DO PINHÃO",qtd:-40,teorico:10096.184676180379,dif:-651.36675330196,abs:651.36675330196,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -40 pçs"},
+{cod:"06-329",curva:"C",data:"2026-06-10",item:"3268X2234",desc:"ADAPTADOR DE FREIO LE (ACABADO)",qtd:-2,teorico:479.144,dif:-479.144,abs:479.144,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -2 pçs"},
+{cod:"06-330",curva:"C",data:"2026-06-10",item:"60111985",desc:"ARRUELA LISA - 32 X 11.5 X 2",qtd:-694,teorico:1087.8735467562715,dif:-1087.8735467562715,abs:1087.8735467562715,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -694 pçs"},
+{cod:"06-331",curva:"D",data:"2026-06-10",item:"914463",desc:"ANEL ELÁSTICO",qtd:-1000,teorico:10202.069572633733,dif:-582.975404150499,abs:582.975404150499,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -1000 pçs"},
+{cod:"06-332",curva:"B",data:"2026-06-10",item:"098422",desc:"ROLAMENTO-CAPA",qtd:2,teorico:71623.20132216677,dif:100.312606893791,abs:100.312606893791,motivo:"Erro de fornecedor",decisao:"Realizamos o ajuste cíclico de +2 pçs"},
+{cod:"06-421",curva:"C",data:"2026-06-17",item:"088135",desc:"PORCA DE AJUSTE DOS ROLAMENTOS DO CUBO",qtd:-197,teorico:16369.799201588896,dif:-7464.931580354196,abs:7464.931580354196,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de -197 pçs"},
+{cod:"06-422",curva:"C",data:"2026-06-17",item:"1227W1843",desc:"PORCA DE AJUSTE DOS ROLAMENTOS DO CUBO -2.500\"-16UN-3B.",qtd:171,teorico:22175.796482927097,dif:5325.92864969176,abs:5325.92864969176,motivo:"Ajuste indevido",decisao:"Realizamos o ajuste cíclico de +171 pçs"},
+{cod:"06-423",curva:"A",data:"2026-06-17",item:"A20-3200J1908-538",desc:"DIFERENCIAL-ANTERIOR-CONJUNTO 5.38/1 (SP+PE+DCDL)",qtd:-1,teorico:9203.96885760091,dif:-9203.96885760091,abs:9203.96885760091,motivo:"Erro de transferência",decisao:"Realizamos o ajuste cíclico de -1 pç"},
+];
+
+const MOTIVO_COLORS = {
+  "Erro de transferência":"var(--amber)",
+  "Ajuste indevido":"var(--red)",
+  "Erro operacional":"var(--blue)",
+  "Erro de fornecedor":"var(--teal)",
+  "Erro de devolução":"#B47CE5"
+};
+const CURVE_COLOR = {A:"var(--teal)", B:"var(--amber)", "C-D":"var(--red)"};
+
+function fmtBRL(v){
+  return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+}
+function fmtPct(v){ return (v*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'; }
+function fmtDate(iso){
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y.slice(2)}`;
+}
+function grpCurve(c){ return (c==='C'||c==='D') ? 'C-D' : c; }
+function accColor(acc){ return acc>=0.95 ? 'var(--teal)' : (acc>=0.90 ? 'var(--amber)' : 'var(--red)'); }
+
+function aggregate(records, keyFn){
+  const m = {};
+  records.forEach(r=>{
+    const k = keyFn(r);
+    if(!m[k]) m[k] = {itens:0, teorico:0, dif:0, abs:0};
+    m[k].itens++; m[k].teorico+=r.teorico; m[k].dif+=r.dif; m[k].abs+=r.abs;
+  });
+  return m;
+}
+
+// ---------- General KPIs ----------
+const totalTeorico = RECORDS.reduce((s,r)=>s+r.teorico,0);
+const totalAbs = RECORDS.reduce((s,r)=>s+r.abs,0);
+const totalAcc = 1 - totalAbs/totalTeorico;
+
+document.getElementById('heroValue').textContent = fmtPct(totalAcc);
+document.getElementById('heroValue').style.color = accColor(totalAcc);
+document.getElementById('statItens').textContent = RECORDS.length;
+document.getElementById('statTeorico').textContent = fmtBRL(totalTeorico);
+document.getElementById('statAbs').textContent = fmtBRL(totalAbs);
+const statusEl = document.getElementById('heroStatus');
+if(totalAcc>=0.95){ statusEl.textContent='▲ acima da meta de 95%'; }
+else { statusEl.textContent='▼ abaixo da meta de 95%'; statusEl.style.color='var(--red)'; statusEl.style.background='rgba(240,85,92,0.1)'; statusEl.style.borderColor='rgba(240,85,92,0.35)'; }
+
+// ---------- Curve cards ----------
+try{
+  const curveAgg = aggregate(RECORDS, r=>grpCurve(r.curva));
+  const curveOrder = ['A','B','C-D'];
+  const curveGrid = document.getElementById('curveGrid');
+  curveOrder.forEach(c=>{
+    const d = curveAgg[c];
+    const acc = 1 - d.abs/d.teorico;
+    const pct = Math.max(0, Math.min(100, acc*100));
+    const color = accColor(acc);
+    const card = document.createElement('div');
+    card.className = 'curve-card tag';
+    card.innerHTML = `
+      <div class="curve-ring" style="background:conic-gradient(${color} ${pct}%, var(--track) 0)">
+        <div class="curve-ring-value" style="color:${color}">${fmtPct(acc)}</div>
+      </div>
+      <div class="curve-info">
+        <div class="curve-name">Curva</div>
+        <div class="curve-letter" style="color:${CURVE_COLOR[c]}">${c}</div>
+        <div class="curve-metrics">
+          <span>Itens ajustados: <b>${d.itens}</b></span>
+          <span>Valor teórico: <b>${fmtBRL(d.teorico)}</b></span>
+          <span>Divergência abs.: <b>${fmtBRL(d.abs)}</b></span>
+        </div>
+      </div>`;
+    curveGrid.appendChild(card);
+  });
+}catch(err){ console.error('Erro nos cards de curva:', err); }
+
+// ---------- Month chart ----------
+const monthAgg = aggregate(RECORDS, r=>r.data.slice(0,7));
+const monthKeys = Object.keys(monthAgg).sort();
+const monthLabels = monthKeys.map(k=>{
+  const [y,m] = k.split('-');
+  return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m,10)]+'/'+y.slice(2);
+});
+const monthAbs = monthKeys.map(k=>monthAgg[k].abs);
+const monthAcc = monthKeys.map(k=>1 - monthAgg[k].abs/monthAgg[k].teorico);
+// (monthAgg/monthKeys kept outside try/catch since they're pure data, not DOM-dependent)
+
+function buildMonthChartSVG(labels, absVals, accVals){
+  const W = 700, H = 300;
+  const padL = 56, padR = 18, padT = 16, padB = 34;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const n = labels.length;
+  const band = plotW / n;
+  const barW = band * 0.42;
+
+  const maxAbs = Math.max(...absVals) * 1.2 || 1;
+  const yForVal = v => padT + plotH - (v / maxAbs) * plotH;
+
+  const pctMin = 70, pctMax = 100;
+  const yForPct = p => padT + plotH - ((Math.max(pctMin, Math.min(pctMax, p)) - pctMin) / (pctMax - pctMin)) * plotH;
+
+  // gridlines (4 horizontal bands)
+  let grid = '';
+  const gridSteps = 4;
+  for(let i=0;i<=gridSteps;i++){
+    const y = padT + (plotH/gridSteps)*i;
+    const valLabel = maxAbs - (maxAbs/gridSteps)*i;
+    grid += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#232E38" stroke-width="1"/>`;
+    grid += `<text x="${padL-10}" y="${y+3}" text-anchor="end" class="axis-label">R$ ${(valLabel/1000).toFixed(0)}k</text>`;
+  }
+
+  // bars
+  let bars = '';
+  labels.forEach((lab,i)=>{
+    const cx = padL + band*i + band/2;
+    const x = cx - barW/2;
+    const y = yForVal(absVals[i]);
+    const h = (padT+plotH) - y;
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(h,1).toFixed(1)}" rx="4" fill="rgba(255,138,61,0.55)" stroke="#FF8A3D" stroke-width="1"/>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(y-8).toFixed(1)}" text-anchor="middle" class="bar-label">R$ ${(absVals[i]/1000).toFixed(1)}k</text>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(padT+plotH+22).toFixed(1)}" text-anchor="middle" class="axis-label">${lab}</text>`;
+  });
+
+  // target dashed line at 95%
+  const targetY = yForPct(95);
+  const target = `<line x1="${padL}" y1="${targetY.toFixed(1)}" x2="${W-padR}" y2="${targetY.toFixed(1)}" stroke="#5D6B78" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+
+  // accuracy line + points
+  const pts = labels.map((lab,i)=>{
+    const cx = padL + band*i + band/2;
+    const cy = yForPct(accVals[i]*100);
+    return {cx, cy, v:accVals[i]};
+  });
+  const path = pts.map((p,i)=> (i===0?'M':'L') + p.cx.toFixed(1) + ',' + p.cy.toFixed(1)).join(' ');
+  let points = '';
+  pts.forEach(p=>{
+    points += `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="4.5" fill="#0F151B" stroke="#3FD1A5" stroke-width="2.5"/>`;
+    points += `<text x="${p.cx.toFixed(1)}" y="${(p.cy-12).toFixed(1)}" text-anchor="middle" class="line-label">${(p.v*100).toFixed(1)}%</text>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <style>
+      .axis-label{font-family:'IBM Plex Mono',monospace; font-size:10px; fill:#8D9BA8;}
+      .bar-label{font-family:'IBM Plex Mono',monospace; font-size:10px; fill:#FF8A3D;}
+      .line-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; fill:#3FD1A5; font-weight:600;}
+    </style>
+    ${grid}
+    ${target}
+    ${bars}
+    <path d="${path}" fill="none" stroke="#3FD1A5" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${points}
+  </svg>`;
+}
+
+try{
+  document.getElementById('monthChartWrap').innerHTML = buildMonthChartSVG(monthLabels, monthAbs, monthAcc);
+}catch(err){
+  document.getElementById('monthChartWrap').innerHTML = '<p style="font-family:var(--font-mono);color:var(--text-faint);padding:20px;">Não foi possível montar o gráfico mensal.</p>';
+  console.error('Erro no gráfico mensal:', err);
+}
+
+// ---------- Motivos ----------
+try{
+  const motivoAgg = aggregate(RECORDS, r=>r.motivo);
+  const motivoKeys = Object.keys(motivoAgg).sort((a,b)=>motivoAgg[b].abs-motivoAgg[a].abs);
+  const maxMotivoAbs = Math.max(...motivoKeys.map(k=>motivoAgg[k].abs));
+  const motivoList = document.getElementById('motivoList');
+  motivoKeys.forEach(k=>{
+    const d = motivoAgg[k];
+    const pctItens = d.itens/RECORDS.length;
+    const pctValor = d.abs/totalAbs;
+    const color = MOTIVO_COLORS[k] || 'var(--blue)';
+    const row = document.createElement('div');
+    row.className = 'motivo-row';
+    row.innerHTML = `
+      <div class="motivo-top">
+        <div class="motivo-name" style="color:${color}">${k}</div>
+        <div class="motivo-figs"><b>${d.itens}</b> itens (${fmtPct(pctItens)}) · <b>${fmtBRL(d.abs)}</b> (${fmtPct(pctValor)} do valor)</div>
+      </div>
+      <div class="motivo-bar-track"><div class="motivo-bar-fill" style="width:${(d.abs/maxMotivoAbs*100).toFixed(1)}%; background:${color}"></div></div>`;
+    motivoList.appendChild(row);
+  });
+}catch(err){ console.error('Erro nos motivos:', err); }
+
+// ---------- Detail table ----------
+let activeCurve = 'Todas';
+let searchTerm = '';
+
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  const filtered = RECORDS
+    .filter(r => activeCurve==='Todas' || grpCurve(r.curva)===activeCurve)
+    .filter(r => {
+      if(!searchTerm) return true;
+      const hay = (r.cod+' '+r.item+' '+r.desc+' '+r.motivo).toLowerCase();
+      return hay.includes(searchTerm);
+    })
+    .sort((a,b)=> b.abs - a.abs);
+
+  if(filtered.length===0){
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">Nenhum item encontrado para este filtro.</td></tr>';
+    return;
+  }
+
+  filtered.forEach(r=>{
+    const c = grpCurve(r.curva);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="mono">${r.cod}</td>
+      <td><span class="curve-chip" style="background:rgba(255,255,255,0.06); color:${CURVE_COLOR[c]}">${r.curva}</span></td>
+      <td class="mono">${fmtDate(r.data)}</td>
+      <td class="mono">${r.item}</td>
+      <td class="desc">${r.desc}</td>
+      <td class="num ${r.qtd>=0?'pos':'neg'}">${r.qtd>=0?'+':''}${r.qtd}</td>
+      <td class="num ${r.dif>=0?'pos':'neg'}">${r.dif>=0?'+':''}${fmtBRL(r.dif)}</td>
+      <td><span class="motivo-chip" style="color:${MOTIVO_COLORS[r.motivo]||'var(--blue)'}">${r.motivo}</span></td>
+      <td class="desc">${r.decisao}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+try{
+  const tabsWrap = document.getElementById('curveTabs');
+  ['Todas','A','B','C-D'].forEach(c=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (c==='Todas' ? ' active' : '');
+    btn.textContent = c==='Todas' ? 'Todas as curvas' : 'Curva '+c;
+    btn.addEventListener('click', ()=>{
+      activeCurve = c;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTable();
+    });
+    tabsWrap.appendChild(btn);
+  });
+
+  document.getElementById('searchInput').addEventListener('input', e=>{
+    searchTerm = e.target.value.toLowerCase();
+    renderTable();
+  });
+
+  renderTable();
+}catch(err){ console.error('Erro na tabela de detalhamento:', err); }
+</script>
+</body>
+</html>
