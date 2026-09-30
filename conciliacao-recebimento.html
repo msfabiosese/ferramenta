@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conciliação de Recebimento</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#eef1f4;--panel:#fff;--ink:#16202a;--mut:#5d6b78;--line:#d5dce3;--acc:#1f5f8b;
+--red:#b3261e;--redbg:#fbe4e2;--amb:#8a5a00;--ambbg:#fdf0d2;--grn:#1d6b3a;--grnbg:#dcf2e3;--blu:#1f5f8b;--blubg:#dfeaf5;--gry:#4a5560;--grybg:#e6eaee;--ora:#a4440b;--orabg:#fde6d6}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181e;--panel:#1a222a;--ink:#e6ebf0;--mut:#93a1ae;--line:#2b3641;--acc:#6fb1e0;--red:#ff9a92;--redbg:#3d1f1d;--amb:#f0c26a;--ambbg:#3a2f14;--grn:#7fd39b;--grnbg:#173425;--blu:#8cc3ec;--blubg:#182c3d;--gry:#b4bfca;--grybg:#252f38;--ora:#f2a672;--orabg:#3b2415}}
+:root[data-theme=dark]{--bg:#12181e;--panel:#1a222a;--ink:#e6ebf0;--mut:#93a1ae;--line:#2b3641;--acc:#6fb1e0;--red:#ff9a92;--redbg:#3d1f1d;--amb:#f0c26a;--ambbg:#3a2f14;--grn:#7fd39b;--grnbg:#173425;--blu:#8cc3ec;--blubg:#182c3d;--gry:#b4bfca;--grybg:#252f38;--ora:#f2a672;--orabg:#3b2415}
+*{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,Arial,sans-serif;padding:20px;max-width:1280px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 16px}
+.drops{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px}
+.drop{background:var(--panel);border:1.5px dashed var(--line);border-radius:6px;padding:12px 14px;cursor:pointer;display:block}
+.drop:hover,.drop.over{border-color:var(--acc)}
+.drop.ok{border-style:solid;border-color:var(--grn)}
+.drop b{display:block;font-weight:600}
+.drop small{color:var(--mut);display:block}
+.drop .st{margin-top:6px;font-size:13px}
+.drop input{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:1px solid transparent;border-radius:4px;padding:6px 10px;cursor:pointer;font:inherit;font-weight:500}
+.chip b{font-weight:600;margin-left:6px;font-variant-numeric:tabular-nums}
+.chip.sel{outline:2px solid var(--ink)}
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit}
+button.act{padding:8px 14px;border:0;border-radius:4px;background:var(--acc);color:#fff;font:inherit;font-weight:500;cursor:pointer}
+:root[data-theme=dark] button.act,:root:not([data-theme=light]) button.act{color:#0d1419}
+button.act:disabled{opacity:.4;cursor:default}
+.note{background:var(--ambbg);color:var(--amb);padding:8px 12px;border-radius:4px;margin-bottom:12px}
+.wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--panel);font-weight:600;color:var(--mut);font-size:13px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.d{white-space:normal;max-width:280px;color:var(--mut)}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:500;font-size:13px}
+.red{background:var(--redbg);color:var(--red)}.amb{background:var(--ambbg);color:var(--amb)}.grn{background:var(--grnbg);color:var(--grn)}.blu{background:var(--blubg);color:var(--blu)}.gry{background:var(--grybg);color:var(--gry)}.ora{background:var(--orabg);color:var(--ora)}
+.empty{padding:28px;text-align:center;color:var(--mut)}
+.neg{color:var(--red)}
+</style>
+</head>
+<body>
+<h1>Conciliação de recebimento</h1>
+<p class="sub">Cruza o saldo do Oracle, o saldo represado e as pendências do Plus, item a item.</p>
+
+<div class="drops">
+  <label class="drop" id="d-t"><input type="file" accept=".tsv,.txt,.csv"><b>Saldo do Oracle</b><small>arquivo .tsv (7102RIS, 7302RIS, 7305)</small><div class="st">Arraste ou clique para escolher</div></label>
+  <label class="drop" id="d-r"><input type="file" accept=".xlsx,.xls"><b>Saldo represado</b><small>arquivo .xlsx (coluna Receiving)</small><div class="st">Arraste ou clique para escolher</div></label>
+  <label class="drop" id="d-p"><input type="file" accept=".csv,.txt"><b>Pendências de recebimento</b><small>arquivo .csv do Plus (PARTCODE, QUANTITY)</small><div class="st">Arraste ou clique para escolher</div></label>
+</div>
+
+<div id="msg"></div>
+<div class="chips" id="chips"></div>
+<div class="bar">
+  <input type="search" id="q" placeholder="Buscar item ou descrição">
+  <button class="act" id="exp" disabled>Exportar para Excel</button>
+</div>
+<div class="wrap"><table>
+<thead><tr><th>Item</th><th>Descrição</th><th class="n">7102RIS</th><th class="n">7302RIS</th><th class="n">7305</th><th class="n">Represado</th><th class="n">Pendente</th><th class="n">Diferença</th><th>Status</th></tr></thead>
+<tbody id="tb"><tr><td colspan="9" class="empty">Carregue o saldo do Oracle e o saldo represado para ver o resultado.</td></tr></tbody>
+</table></div>
+
+<script>
+/* ===== núcleo ===== */
+const ST={
+ falta:['Falta de saldo','red',1,0],
+ orph:['Represado sem saldo no 7102RIS','red',1,1],
+ sobra:['Sobra de saldo no RIS','red',1,2],
+ parc:['Qualidade parcial (falta saldo)','red',1,3],
+ exc:['Represado maior que o negativo','ora',1,4],
+ verif:['Verificar: RIS positivo com pendência','ora',0,5],
+ qual:['Aguarda ajuste da Qualidade','amb',0,6],
+ pend:['Pendente de recebimento','gry',0,7],
+ trans:['Em transferência p/ Estoque','grn',0,8],
+ cons:['Consignado (7305)','blu',0,9]
+};
+function norm(s,strip){
+  s=String(s==null?'':s).trim().toUpperCase();
+  if(strip) s=s.replace(/(OUT\/OSP|\/OSP|OUT)$/,'').trim();
+  return /^\d+$/.test(s)?s.replace(/^0+(?=\d)/,''):s;
+}
+function num(v){
+  if(typeof v==='number') return Math.abs(v)<1e-6?0:v;
+  let s=String(v==null?'':v).trim().replace(/\s/g,'');
+  if(s==='') return 0;
+  if(s.includes(',')&&!s.includes('.')) s=s.replace(',','.'); else s=s.replace(/,/g,'');
+  const n=parseFloat(s);
+  return isNaN(n)||Math.abs(n)<1e-6?0:n;
+}
+function parseDelim(text){
+  text=text.replace(/^\uFEFF/,'');
+  const first=text.split(/\r?\n/,1)[0];
+  const d=['\t',';',','].map(x=>[x,first.split(x).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===d){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';rows.push(row);row=[]}
+    else f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
+}
+function toObjs(rows,need){
+  if(!rows.length) return {objs:[],missing:need.map(n=>n[0])};
+  const h=rows[0].map(x=>String(x).trim().toLowerCase());
+  const idx={},missing=[];
+  need.forEach(([key,...alts])=>{const i=h.findIndex(x=>[key,...alts].map(a=>a.toLowerCase()).includes(x));if(i<0)missing.push(key);idx[key]=i});
+  const objs=rows.slice(1).map(r=>{const o={};for(const k in idx)o[k]=idx[k]>=0?r[idx[k]]:'';return o});
+  return {objs,missing};
+}
+function classify(o){
+  const {a,b,c,r,p}=o;
+  if(c!==0&&a===0) return ['cons',''];
+  if(a<0){
+    const cover=r+a;
+    if(r===0) return ['falta',cover];
+    if(cover<0) return ['parc',cover];
+    if(cover>0) return ['exc',cover];
+    return ['qual',0];
+  }
+  if(a>0) return p>0?['verif','']:['sobra',a];
+  if(b>0) return p>0?['verif','']:['trans',''];
+  if(r>0) return ['orph',r];
+  if(p>0) return ['pend',''];
+  return null;
+}
+function compute(T,R,P){
+  const m=new Map();
+  const get=(k,item)=>{let o=m.get(k);if(!o){o={item,desc:'',a:0,b:0,c:0,x:0,r:0,p:0};m.set(k,o)}return o};
+  T.forEach(t=>{const k=norm(t.item,false);if(!k)return;const o=get(k,String(t.item).trim());
+    if(!o.desc)o.desc=t.desc||'';const sub=String(t.sub).trim().toUpperCase(),q=num(t.qty);
+    if(sub==='7102RIS')o.a+=q;else if(sub==='7302RIS')o.b+=q;else if(sub.startsWith('7305'))o.c+=q;else o.x+=q});
+  R.forEach(t=>{const k=norm(t.item,true);if(!k)return;const o=get(k,k);if(!o.desc)o.desc=t.desc||'';o.r+=num(t.qty)});
+  P.forEach(t=>{const k=norm(t.item,false);if(!k)return;const o=get(k,String(t.item).trim());o.p+=num(t.qty)});
+  const out=[];
+  m.forEach(o=>{const c=classify(o);if(!c)return;o.st=c[0];o.dif=c[1];out.push(o)});
+  out.sort((x,y)=>ST[x.st][3]-ST[y.st][3]||x.item.localeCompare(y.item,undefined,{numeric:true}));
+  return out;
+}
+/* ===== interface ===== */
+const $=id=>document.getElementById(id);
+const D={t:null,r:null,p:null};let rows=[],filt='all';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=v=>v===''||v===0?(v===0?'0':''):Number(v).toLocaleString('pt-BR',{maximumFractionDigits:3});
+function decode(buf){try{return new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){return new TextDecoder('windows-1252').decode(buf)}}
+function status(id,ok,text){const d=$(id);d.classList.toggle('ok',ok);d.querySelector('.st').textContent=text}
+async function load(kind,file){
+  const id='d-'+kind,buf=await file.arrayBuffer();
+  let rowsRaw;
+  try{
+    if(kind==='r'){const wb=XLSX.read(buf,{type:'array'});rowsRaw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
+    else rowsRaw=parseDelim(decode(buf));
+  }catch(e){status(id,false,'Não consegui ler este arquivo.');return}
+  const need=kind==='t'?[['item'],['sub','subinventory'],['qty','on-hand qty'],['desc','item description']]
+            :kind==='r'?[['item'],['qty','receiving'],['desc','item description']]
+            :[['item','partcode'],['qty','quantity']];
+  const {objs,missing}=toObjs(rowsRaw,need);
+  const crit=missing.filter(x=>x!=='desc');
+  if(crit.length){status(id,false,'Colunas não encontradas: '+crit.join(', '));D[kind]=null;render();return}
+  D[kind]=objs.filter(o=>String(o.item).trim()!=='');
+  status(id,true,file.name+' — '+D[kind].length+' linhas'+(D[kind].length?'':' (arquivo sem registros)'));
+  render();
+}
+['t','r','p'].forEach(k=>{
+  const el=$('d-'+k),inp=el.querySelector('input');
+  inp.addEventListener('change',()=>inp.files[0]&&load(k,inp.files[0]));
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');e.dataTransfer.files[0]&&load(k,e.dataTransfer.files[0])});
+});
+function render(){
+  const msg=$('msg');msg.innerHTML='';
+  if(!D.t||!D.r){rows=[];$('chips').innerHTML='';$('exp').disabled=true;
+    $('tb').innerHTML='<tr><td colspan="9" class="empty">Carregue o saldo do Oracle e o saldo represado para ver o resultado.</td></tr>';return}
+  rows=compute(D.t,D.r,D.p||[]);
+  if(!D.p) msg.innerHTML='<div class="note">Arquivo de pendências não carregado: os itens estão sendo avaliados como se não houvesse nada pendente.</div>';
+  else if(!D.p.length) msg.innerHTML='<div class="note">O arquivo de pendências não tem registros. Todo saldo positivo no 7102RIS será tratado como sobra.</div>';
+  const cnt={};rows.forEach(o=>cnt[o.st]=(cnt[o.st]||0)+1);
+  const div=rows.filter(o=>ST[o.st][2]).length;
+  let h='<button class="chip gry'+(filt==='all'?' sel':'')+'" data-f="all">Todos<b>'+rows.length+'</b></button>';
+  h+='<button class="chip red'+(filt==='div'?' sel':'')+'" data-f="div">Divergentes<b>'+div+'</b></button>';
+  Object.keys(ST).forEach(k=>{if(cnt[k])h+='<button class="chip '+ST[k][1]+(filt===k?' sel':'')+'" data-f="'+k+'">'+ST[k][0]+'<b>'+cnt[k]+'</b></button>'});
+  $('chips').innerHTML=h;
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{filt=c.dataset.f;render()});
+  $('exp').disabled=!rows.length;
+  draw();
+}
+function draw(){
+  const q=$('q').value.trim().toLowerCase();
+  const list=rows.filter(o=>(filt==='all'||(filt==='div'?ST[o.st][2]:o.st===filt))&&(!q||o.item.toLowerCase().includes(q)||o.desc.toLowerCase().includes(q)));
+  $('tb').innerHTML=list.length?list.map(o=>'<tr><td>'+esc(o.item)+'</td><td class="d">'+esc(o.desc)+'</td><td class="n'+(o.a<0?' neg':'')+'">'+fmt(o.a)+'</td><td class="n">'+fmt(o.b)+'</td><td class="n">'+fmt(o.c)+'</td><td class="n">'+fmt(o.r)+'</td><td class="n">'+fmt(o.p)+'</td><td class="n'+(o.dif<0?' neg':'')+'">'+fmt(o.dif)+'</td><td><span class="tag '+ST[o.st][1]+'">'+ST[o.st][0]+'</span></td></tr>').join(''):'<tr><td colspan="9" class="empty">Nenhum item neste filtro.</td></tr>';
+}
+$('q').addEventListener('input',draw);
+$('exp').addEventListener('click',()=>{
+  const map=o=>({Item:o.item,'Descrição':o.desc,'7102RIS':o.a,'7302RIS':o.b,'7305':o.c,'Represado':o.r,'Pendente':o.p,'Diferença':o.dif,Status:ST[o.st][0]});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.map(map)),'Conciliação');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.filter(o=>ST[o.st][2]).map(map)),'Divergências');
+  XLSX.writeFile(wb,'conciliacao-recebimento.xlsx');
+});
+</script>
+</body>
+</html>
