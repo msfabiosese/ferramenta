@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conciliação de Recebimento</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#eef1f4;--panel:#fff;--ink:#16202a;--mut:#5d6b78;--line:#d5dce3;--acc:#1f5f8b;
+--red:#b3261e;--redbg:#fbe4e2;--amb:#8a5a00;--ambbg:#fdf0d2;--grn:#1d6b3a;--grnbg:#dcf2e3;--blu:#1f5f8b;--blubg:#dfeaf5;--gry:#4a5560;--grybg:#e6eaee;--ora:#a4440b;--orabg:#fde6d6}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181e;--panel:#1a222a;--ink:#e6ebf0;--mut:#93a1ae;--line:#2b3641;--acc:#6fb1e0;--red:#ff9a92;--redbg:#3d1f1d;--amb:#f0c26a;--ambbg:#3a2f14;--grn:#7fd39b;--grnbg:#173425;--blu:#8cc3ec;--blubg:#182c3d;--gry:#b4bfca;--grybg:#252f38;--ora:#f2a672;--orabg:#3b2415}}
+:root[data-theme=dark]{--bg:#12181e;--panel:#1a222a;--ink:#e6ebf0;--mut:#93a1ae;--line:#2b3641;--acc:#6fb1e0;--red:#ff9a92;--redbg:#3d1f1d;--amb:#f0c26a;--ambbg:#3a2f14;--grn:#7fd39b;--grnbg:#173425;--blu:#8cc3ec;--blubg:#182c3d;--gry:#b4bfca;--grybg:#252f38;--ora:#f2a672;--orabg:#3b2415}
+*{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,Arial,sans-serif;padding:14px 16px;max-width:1920px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 16px}
+.drops{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px}
+.drop{background:var(--panel);border:1.5px dashed var(--line);border-radius:6px;padding:12px 14px;cursor:pointer;display:block}
+.drop:hover,.drop.over{border-color:var(--acc)}
+.drop.ok{border-style:solid;border-color:var(--grn)}
+.drop b{display:block;font-weight:600}
+.drop small{color:var(--mut);display:block}
+.drop .st{margin-top:6px;font-size:13px}
+.drop input{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:1px solid transparent;border-radius:4px;padding:6px 10px;cursor:pointer;font:inherit;font-weight:500}
+.chip b{font-weight:600;margin-left:6px;font-variant-numeric:tabular-nums}
+.chip.sel{outline:2px solid var(--ink)}
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit}
+button.act{padding:8px 14px;border:0;border-radius:4px;background:var(--acc);color:#fff;font:inherit;font-weight:500;cursor:pointer}
+:root[data-theme=dark] button.act,:root:not([data-theme=light]) button.act{color:#0d1419}
+button.act:disabled{opacity:.4;cursor:default}
+.note{background:var(--ambbg);color:var(--amb);padding:8px 12px;border-radius:4px;margin-bottom:12px}
+.wrap{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+th,td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:normal;overflow-wrap:anywhere;vertical-align:top}
+th{position:sticky;top:0;z-index:3;background:var(--panel);font-weight:600;color:var(--mut);font-size:12.5px;box-shadow:inset 0 -1px 0 var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.d{color:var(--mut)}
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-weight:500;font-size:12px;margin:0 0 2px}
+.red{background:var(--redbg);color:var(--red)}.amb{background:var(--ambbg);color:var(--amb)}.grn{background:var(--grnbg);color:var(--grn)}.blu{background:var(--blubg);color:var(--blu)}.gry{background:var(--grybg);color:var(--gry)}.ora{background:var(--orabg);color:var(--ora)}
+.empty{padding:28px;text-align:center;color:var(--mut)}
+.neg{color:var(--red)}
+.fr th{top:var(--h1,34px);z-index:2;padding:5px 4px;background:var(--bg)}
+.fr input,.fr select{width:100%;min-width:0;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit;font-size:12px;font-weight:400}
+.fr input:focus,.fr select:focus{outline:2px solid var(--acc);outline-offset:-1px}
+.fr .on{border-color:var(--acc);background:var(--blubg)}
+.tag+.tag{margin-left:0}
+select.cs{padding:4px 4px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit;font-size:12.5px;width:100%;min-width:0}
+select.sit{font-weight:500}
+select.sit.pend{background:var(--ambbg);color:var(--amb);border-color:transparent}
+select.sit.trat{background:var(--grnbg);color:var(--grn);border-color:transparent}
+td.obs{padding:3px 4px}
+button.obsBtn{display:block;width:100%;text-align:left;border:1px solid transparent;background:none;color:var(--ink);font:inherit;font-size:12.5px;padding:4px 6px;border-radius:4px;cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere}
+button.obsBtn:hover{border-color:var(--acc);background:var(--panel)}
+button.obsBtn.vazio{color:var(--mut)}
+tr.done td{background:color-mix(in srgb,var(--grnbg) 35%,transparent)}
+.rb{display:block;margin-top:3px;font-size:12px}
+.div-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.div-tools select{padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit;min-width:150px}
+button.small{padding:6px 9px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}
+button.small:hover{border-color:var(--acc)}
+button.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal.show{display:flex}.modal-card{width:min(620px,100%);background:var(--panel);color:var(--ink);border-radius:8px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-card h3{margin:0 0 6px}.modal-card p{margin:0 0 12px;color:var(--mut)}
+.modal-card textarea{width:100%;min-height:150px;resize:vertical;padding:10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);font:inherit}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+@media(max-width:1100px){.wrap{overflow-x:auto}table{min-width:1100px}}
+</style>
+</head>
+<body>
+<h1>Conciliação de recebimento</h1>
+<p class="sub">Cruza o saldo do Oracle, o saldo Receiving e as pendências do Plus, item a item.</p>
+
+<div class="modal" id="obsModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3>Observação da divergência</h3>
+    <p id="obsItem"></p>
+    <textarea id="obsText" placeholder="Digite a observação..."></textarea>
+    <div class="modal-actions">
+      <button class="small" id="obsCancel">Cancelar</button>
+      <button class="act" id="obsSave">Salvar observação</button>
+    </div>
+  </div>
+</div>
+
+<div class="drops">
+  <label class="drop" id="d-t"><input type="file" accept=".tsv,.txt,.csv"><b>Saldo do Oracle</b><small>arquivo .tsv (7102RIS, 7302RIS, 7105, 7305)</small><div class="st">Arraste ou clique para escolher</div></label>
+  <label class="drop" id="d-r"><input type="file" accept=".xlsx,.xls"><b>Saldo Receiving</b><small>arquivo .xlsx (coluna Receiving)</small><div class="st">Arraste ou clique para escolher</div></label>
+  <label class="drop" id="d-p"><input type="file" accept=".csv,.txt"><b>Pendências de recebimento</b><small>arquivo .csv do Plus (PARTCODE, QUANTITY)</small><div class="st">Arraste ou clique para escolher</div></label>
+</div>
+
+<div id="msg"></div>
+<div class="chips" id="chips"></div>
+<div class="bar">
+  <input type="search" id="q" placeholder="Buscar item ou descrição">
+  <button class="act" id="exp" disabled>Exportar para Excel</button>
+  <button class="small" id="clearFilters">Limpar filtros</button>
+  <button class="small danger" id="clearAll">Limpar</button>
+</div>
+<div class="wrap"><table>
+<colgroup><col style="width:8.5%"><col style="width:14%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5%"><col style="width:5%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:11%"><col style="width:8.5%"><col style="width:8.5%"><col style="width:10.5%"></colgroup>
+<thead><tr><th>Item</th><th>Descrição</th><th class="n">7102RIS</th><th class="n">7302RIS</th><th class="n">7105</th><th class="n">7305</th><th class="n">Receiving</th><th class="n">Pendente</th><th class="n">Diferença</th><th>Status</th><th>Situação</th><th>Tipo de divergência</th><th>Observação</th></tr>
+<tr class="fr" id="fr">
+<th><input type="search" data-h="item" placeholder="Filtrar"></th>
+<th><input type="search" data-h="desc" placeholder="Filtrar"></th>
+<th><select data-h="a" class="numf"></select></th>
+<th><select data-h="b" class="numf"></select></th>
+<th><select data-h="d" class="numf"></select></th>
+<th><select data-h="c" class="numf"></select></th>
+<th><select data-h="r" class="numf"></select></th>
+<th><select data-h="p" class="numf"></select></th>
+<th><select data-h="dif" class="numf"></select></th>
+<th><select data-h="st" id="hfSt"></select></th>
+<th><select data-h="sit"><option value="">Todas</option><option value="pendente">Pendente</option><option value="tratado">Tratado OK</option></select></th>
+<th><select data-h="tipo" id="hfTipo"></select></th>
+<th><input type="search" data-h="obs" placeholder="Filtrar"></th>
+</tr></thead>
+<tbody id="tb"><tr><td colspan="13" class="empty">Carregue o saldo do Oracle e o saldo Receiving para ver o resultado.</td></tr></tbody>
+</table></div>
+
+<script>
+/* ===== núcleo ===== */
+const ST={
+ falta:['Falta de saldo','red',1,0],
+ orph:['Receiving sem saldo no 7102RIS','red',1,1],
+ sobra:['Sobra de saldo no RIS','red',1,2],
+ parc:['Qualidade parcial (falta saldo)','red',1,3],
+ exc:['Receiving maior que o negativo','ora',1,4],
+ verif:['Verificar: RIS positivo com pendência','ora',0,5],
+ qual:['Aguarda ajuste da Qualidade','amb',0,6],
+ pend:['Pendente de recebimento','gry',0,7],
+ trans:['Em transferência p/ Estoque','grn',0,8],
+ cons:['Consignado (7105/7305)','blu',0,9]
+};
+function norm(s,strip){
+  s=String(s==null?'':s).trim().toUpperCase();
+  if(strip) s=s.replace(/(OUT\/OSP|\/OSP|OUT)$/,'').trim();
+  return /^\d+$/.test(s)?s.replace(/^0+(?=\d)/,''):s;
+}
+function num(v){
+  if(typeof v==='number') return Math.abs(v)<1e-6?0:v;
+  let s=String(v==null?'':v).trim().replace(/\s/g,'');
+  if(s==='') return 0;
+  if(s.includes(',')&&!s.includes('.')) s=s.replace(',','.'); else s=s.replace(/,/g,'');
+  const n=parseFloat(s);
+  return isNaN(n)||Math.abs(n)<1e-6?0:n;
+}
+function parseDelim(text){
+  text=text.replace(/^\uFEFF/,'');
+  const first=text.split(/\r?\n/,1)[0];
+  const d=['\t',';',','].map(x=>[x,first.split(x).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===d){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';rows.push(row);row=[]}
+    else f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
+}
+function toObjs(rows,need){
+  if(!rows.length) return {objs:[],missing:need.map(n=>n[0])};
+  const h=rows[0].map(x=>String(x).trim().toLowerCase());
+  const idx={},missing=[];
+  need.forEach(([key,...alts])=>{const i=h.findIndex(x=>[key,...alts].map(a=>a.toLowerCase()).includes(x));if(i<0)missing.push(key);idx[key]=i});
+  const objs=rows.slice(1).map(r=>{const o={};for(const k in idx)o[k]=idx[k]>=0?r[idx[k]]:'';return o});
+  return {objs,missing};
+}
+function classify(o){
+  const {a,b,c,d,r,p}=o;
+  if((c!==0||d!==0)&&a===0) return ['cons',''];
+  if(a<0){
+    const cover=r+a;
+    if(r===0) return ['falta',cover];
+    if(cover<0) return ['parc',cover];
+    if(cover>0) return ['exc',cover];
+    return ['qual',0];
+  }
+  if(a>0) return p>0?['verif','']:['sobra',a];
+  if(b>0) return p>0?['verif','']:['trans',''];
+  if(r>0) return ['orph',r];
+  if(p>0) return ['pend',''];
+  return null;
+}
+function compute(T,R,P){
+  const m=new Map();
+  const get=(k,item)=>{let o=m.get(k);if(!o){o={item,desc:'',a:0,b:0,c:0,d:0,x:0,r:0,p:0};m.set(k,o)}return o};
+  T.forEach(t=>{const k=norm(t.item,false);if(!k)return;const o=get(k,String(t.item).trim());
+    if(!o.desc)o.desc=t.desc||'';const sub=String(t.sub).trim().toUpperCase(),q=num(t.qty);
+    if(sub==='7102RIS')o.a+=q;else if(sub==='7302RIS')o.b+=q;else if(sub.startsWith('7305'))o.c+=q;else if(sub.startsWith('7105'))o.d+=q;else o.x+=q});
+  R.forEach(t=>{const k=norm(t.item,true);if(!k)return;const o=get(k,k);if(!o.desc)o.desc=t.desc||'';o.r+=num(t.qty)});
+  P.forEach(t=>{const k=norm(t.item,false);if(!k)return;const o=get(k,String(t.item).trim());o.p+=num(t.qty)});
+  const out=[];
+  m.forEach(o=>{const c=classify(o);if(!c)return;o.st=c[0];o.dif=c[1];o.flag=(o.c>0&&o.d<0)||(o.c<0&&o.d>0);out.push(o)});
+  out.sort((x,y)=>ST[x.st][3]-ST[y.st][3]||x.item.localeCompare(y.item,undefined,{numeric:true}));
+  return out;
+}
+/* ===== interface ===== */
+const $=id=>document.getElementById(id);
+const D={t:null,r:null,p:null};
+const annotations={};
+let rows=[],filt='all',obsEditingKey=null;
+const TIPOS=['Fornecedor','Pendencia Oracle','Sese','Lead Time'];
+const HF={};
+const NUMOPTS=[['','Todos'],['pos','> 0'],['neg','< 0'],['zero','= 0'],['nz','≠ 0']];
+const numMatch=(v,m)=>{const n=(v===''||v==null)?0:v;return m==='pos'?n>0:m==='neg'?n<0:m==='zero'?n===0:m==='nz'?n!==0:true};
+const sig=o=>o.st+(o.flag?'|f':'');
+const annOf=o=>annotations[norm(o.item,false)]||{};
+const isTrat=o=>{const a=annOf(o);return a.situacao==='tratado'&&(!a.stAt||a.stAt===sig(o))};
+const reopened=o=>{const a=annOf(o);return a.situacao==='tratado'&&!!a.stAt&&a.stAt!==sig(o)};
+const effSt=o=>isTrat(o)?'ok':o.st;
+const isDiv=o=>(!!ST[o.st][2]||o.flag)&&!isTrat(o);
+function initHeaderFilters(){
+  document.querySelectorAll('#fr select.numf').forEach(el=>{el.innerHTML=NUMOPTS.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')});
+  $('hfSt').innerHTML='<option value="">Todos os status</option>'+Object.keys(ST).map(k=>'<option value="'+k+'">'+esc(ST[k][0])+'</option>').join('')+'<option value="consinv">7105 × 7305 invertido</option><option value="ok">Tratados OK</option>';
+  $('hfTipo').innerHTML='<option value="">Tipo: todos</option><option value="__none">Sem tipo</option>'+TIPOS.map(t=>'<option value="'+esc(t)+'">'+esc(t)+'</option>').join('');
+  document.querySelectorAll('#fr [data-h]').forEach(el=>{
+    const h=()=>{HF[el.dataset.h]=el.value.trim();el.classList.toggle('on',!!el.value.trim());draw()};
+    el.addEventListener(el.tagName==='INPUT'?'input':'change',h);
+  });
+}
+function clearHeaderFilters(){
+  Object.keys(HF).forEach(k=>delete HF[k]);
+  document.querySelectorAll('#fr [data-h]').forEach(el=>{el.value='';el.classList.remove('on')});
+  $('q').value='';filt='all';render();
+}
+function rowVisible(o){
+  if(filt==='div'){if(!isDiv(o))return false}
+  else if(filt==='consinv'){if(!o.flag||isTrat(o))return false}
+  else if(filt!=='all'&&effSt(o)!==filt)return false;
+  const q=$('q').value.trim().toLowerCase();
+  if(q&&!(o.item.toLowerCase().includes(q)||o.desc.toLowerCase().includes(q)))return false;
+  if(HF.item&&!o.item.toLowerCase().includes(HF.item.toLowerCase()))return false;
+  if(HF.desc&&!o.desc.toLowerCase().includes(HF.desc.toLowerCase()))return false;
+  for(const k of ['a','b','d','c','r','p','dif']) if(HF[k]&&!numMatch(o[k],HF[k]))return false;
+  if(HF.st){if(HF.st==='consinv'){if(!o.flag)return false}else if(effSt(o)!==HF.st)return false}
+  if(HF.sit==='pendente'&&isTrat(o))return false;
+  if(HF.sit==='tratado'&&!isTrat(o))return false;
+  const ann=annOf(o);
+  if(HF.tipo){if(HF.tipo==='__none'){if(ann.tipo)return false}else if(ann.tipo!==HF.tipo)return false}
+  if(HF.obs&&!(ann.observacao||'').toLowerCase().includes(HF.obs.toLowerCase()))return false;
+  return true;
+}
+const TOOL_ID='conciliacao-recebimento';
+let pendingSave=false, gotReply=false, lastSaved='';
+
+function sendToPainel(message){
+  try{
+    if(window.parent && window.parent!==window){
+      window.parent.postMessage(message,'*');
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function showPersistenceMessage(text){
+  const msg=$('msg');
+  msg.innerHTML='<div class="note">'+esc(text)+'</div>';
+}
+
+function compact(kind,arr){
+  if(!arr) return null;
+  const m=new Map();
+  arr.forEach(o=>{
+    const ik=kind==='r'?norm(o.item,true):norm(o.item,false);
+    if(!ik) return;
+    let sub='';
+    if(kind==='t'){
+      sub=String(o.sub).trim().toUpperCase();
+      if(!(sub==='7102RIS'||sub==='7302RIS'||sub.startsWith('7305')||sub.startsWith('7105'))) return;
+    }
+    const k=ik+'|'+sub;
+    let e=m.get(k);
+    if(!e){e=kind==='t'?{item:String(o.item).trim(),sub,qty:0,desc:o.desc||''}:kind==='r'?{item:ik,qty:0,desc:o.desc||''}:{item:String(o.item).trim(),qty:0};m.set(k,e)}
+    if(kind!=='p'&&!e.desc&&o.desc)e.desc=o.desc;
+    e.qty+=num(o.qty);
+  });
+  return [...m.values()].filter(e=>e.qty!==0).map(e=>({...e,qty:Math.round(e.qty*1000)/1000}));
+}
+let saveTimer=null, ackTimer=null;
+function saveImportedData(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(doSave,500);
+}
+function doSave(){
+  if(!D.t && !D.r && !D.p) return;
+  pendingSave=true;
+  const payload={
+    version:3,
+    savedAt:Date.now(),
+    files:{t:compact('t',D.t),r:compact('r',D.r),p:compact('p',D.p)},
+    has:{t:D.t?1:0,r:D.r?1:0,p:D.p?1:0},
+    annotations:Object.keys(annotations).map(k=>({k,...annotations[k]}))
+  };
+  const n=x=>x?x.length:0;
+  lastSaved='Oracle: '+n(payload.files.t)+' · Receiving: '+n(payload.files.r)+' · Pendências: '+n(payload.files.p)+' linhas';
+  if(!sendToPainel({type:'painel:save-data',tool:TOOL_ID,payload})){
+    pendingSave=false;
+    return;
+  }
+  clearTimeout(ackTimer);
+  ackTimer=setTimeout(()=>{if(pendingSave)showPersistenceMessage('O Painel não confirmou o salvamento no Firebase. Os dados podem não ficar salvos.')},8000);
+}
+
+function requestSavedData(){
+  sendToPainel({type:'painel:request-data',tool:TOOL_ID});
+}
+
+function clearAllData(){
+  if(!confirm('Limpar todos os dados desta ferramenta? Isso apagará também os dados salvos no Firebase para todos os usuários.')) return;
+  D.t=null; D.r=null; D.p=null;
+  Object.keys(annotations).forEach(k=>delete annotations[k]);
+  clearTimeout(saveTimer);
+  pendingSave=true;
+  sendToPainel({type:'painel:save-data',tool:TOOL_ID,payload:null});
+  ['t','r','p'].forEach(k=>status('d-'+k,false,'Nenhum arquivo carregado'));
+  render();
+}
+
+window.addEventListener('message',(e)=>{
+  const msg=e.data;
+  if(!msg || typeof msg!=='object') return;
+
+  if(msg.type==='painel:save-ack' && msg.tool===TOOL_ID){
+    pendingSave=false;
+    if(msg.ok){
+      showPersistenceMessage('Dados salvos no Firebase ('+lastSaved+'). Serão restaurados ao reabrir esta ferramenta.');
+    }else{
+      showPersistenceMessage('Não foi possível salvar os dados no Firebase: '+(msg.error||'erro desconhecido')+'.');
+    }
+    return;
+  }
+
+  if(msg.type==='painel:data' && msg.tool===TOOL_ID){
+    gotReply=true;
+    if(!msg.payload){
+      D.t=null; D.r=null; D.p=null;
+      Object.keys(annotations).forEach(k=>delete annotations[k]);
+      ['t','r','p'].forEach(k=>status('d-'+k,false,'Nenhum arquivo carregado'));
+      render();
+      return;
+    }
+    let payload=msg.payload;
+    if(typeof payload==='string'){try{payload=JSON.parse(payload)}catch(e){payload={}}}
+    payload=payload||{};
+    const files=payload.files||payload;
+    const toArr=x=>Array.isArray(x)?x:(x&&typeof x==='object'?Object.values(x):null);
+    Object.keys(annotations).forEach(k=>delete annotations[k]);
+    const an=payload.annotations;
+    if(Array.isArray(an)) an.forEach(e=>{if(e&&e.k!=null){const {k,...rest}=e;annotations[k]=rest}});
+    else if(an&&typeof an==='object') Object.assign(annotations,an);
+    const has=payload.has||{};
+    if(files && (files.t||files.r||files.p||has.t||has.r||has.p)){
+      D.t=toArr(files.t)||(has.t?[]:null);
+      D.r=toArr(files.r)||(has.r?[]:null);
+      D.p=toArr(files.p)||(has.p?[]:null);
+      if(D.t) status('d-t',true,'Dados restaurados do Firebase — '+D.t.length+' linhas');
+      if(D.r) status('d-r',true,'Dados restaurados do Firebase — '+D.r.length+' linhas');
+      if(D.p) status('d-p',true,'Dados restaurados do Firebase — '+D.p.length+' linhas');
+      render();
+      const miss=[];if(!D.t)miss.push('Saldo do Oracle');if(!D.r)miss.push('Saldo Receiving');if(!D.p)miss.push('Pendências');
+      if(miss.length)$('msg').insertAdjacentHTML('beforeend','<div class="note">Não havia dado salvo de: '+miss.join(', ')+'. Carregue o arquivo novamente.</div>');
+    }
+  }
+});
+
+window.addEventListener('load',()=>{
+  if(!(window.parent&&window.parent!==window)){
+    showPersistenceMessage('Esta página está aberta fora do Painel: os dados não são salvos nem restaurados.');
+    return;
+  }
+  requestSavedData();
+  let tries=0;
+  const t=setInterval(()=>{
+    if(gotReply){clearInterval(t);return}
+    if(++tries>3){clearInterval(t);showPersistenceMessage('O Painel não respondeu ao pedido de dados salvos. Confira se a ferramenta "'+TOOL_ID+'" está registrada no index.html.');return}
+    requestSavedData();
+  },1500);
+});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=v=>v===''||v===0?(v===0?'0':''):Number(v).toLocaleString('pt-BR',{maximumFractionDigits:3});
+function decode(buf){try{return new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){return new TextDecoder('windows-1252').decode(buf)}}
+function status(id,ok,text){const d=$(id);d.classList.toggle('ok',ok);d.querySelector('.st').textContent=text}
+async function load(kind,file){
+  const id='d-'+kind,buf=await file.arrayBuffer();
+  let rowsRaw;
+  try{
+    if(kind==='r'){const wb=XLSX.read(buf,{type:'array'});rowsRaw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
+    else rowsRaw=parseDelim(decode(buf));
+  }catch(e){status(id,false,'Não consegui ler este arquivo.');return}
+  const need=kind==='t'?[['item'],['sub','subinventory'],['qty','on-hand qty'],['desc','item description']]
+            :kind==='r'?[['item'],['qty','receiving'],['desc','item description']]
+            :[['item','partcode'],['qty','quantity']];
+  const {objs,missing}=toObjs(rowsRaw,need);
+  const crit=missing.filter(x=>x!=='desc');
+  if(crit.length){status(id,false,'Colunas não encontradas: '+crit.join(', '));D[kind]=null;render();return}
+  D[kind]=objs.filter(o=>String(o.item).trim()!=='');
+  status(id,true,file.name+' — '+D[kind].length+' linhas'+(D[kind].length?'':' (arquivo sem registros)'));
+  render();
+  saveImportedData();
+}
+['t','r','p'].forEach(k=>{
+  const el=$('d-'+k),inp=el.querySelector('input');
+  inp.addEventListener('change',()=>inp.files[0]&&load(k,inp.files[0]));
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');e.dataTransfer.files[0]&&load(k,e.dataTransfer.files[0])});
+});
+function render(){
+  const msg=$('msg');msg.innerHTML='';
+  if(!D.t||!D.r){rows=[];$('chips').innerHTML='';$('exp').disabled=true;
+    $('tb').innerHTML='<tr><td colspan="13" class="empty">Carregue o saldo do Oracle e o saldo Receiving para ver o resultado.</td></tr>';return}
+  rows=compute(D.t,D.r,D.p||[]);
+  if(!D.p) msg.innerHTML='<div class="note">Arquivo de pendências não carregado: os itens estão sendo avaliados como se não houvesse nada pendente.</div>';
+  else if(!D.p.length) msg.innerHTML='<div class="note">O arquivo de pendências não tem registros. Todo saldo positivo no 7102RIS será tratado como sobra.</div>';
+  const cnt={};rows.forEach(o=>{const e=effSt(o);cnt[e]=(cnt[e]||0)+1});
+  const div=rows.filter(isDiv).length, inv=rows.filter(o=>o.flag&&!isTrat(o)).length;
+  let h='<button class="chip gry'+(filt==='all'?' sel':'')+'" data-f="all">Todos<b>'+rows.length+'</b></button>';
+  h+='<button class="chip red'+(filt==='div'?' sel':'')+'" data-f="div">Divergentes<b>'+div+'</b></button>';
+  if(inv)h+='<button class="chip red'+(filt==='consinv'?' sel':'')+'" data-f="consinv">7105 × 7305 invertido<b>'+inv+'</b></button>';
+  Object.keys(ST).forEach(k=>{if(cnt[k])h+='<button class="chip '+ST[k][1]+(filt===k?' sel':'')+'" data-f="'+k+'">'+ST[k][0]+'<b>'+cnt[k]+'</b></button>'});
+  if(cnt.ok)h+='<button class="chip grn'+(filt==='ok'?' sel':'')+'" data-f="ok">Tratados OK<b>'+cnt.ok+'</b></button>';
+  $('chips').innerHTML=h;
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{filt=c.dataset.f;render()});
+  $('exp').disabled=!rows.length;
+  draw();
+}
+function syncHead(){const r=document.querySelector('thead tr');if(r)document.documentElement.style.setProperty('--h1',r.offsetHeight+'px')}
+window.addEventListener('resize',syncHead);
+function draw(){
+  const list=rows.filter(rowVisible);
+  $('tb').innerHTML=list.length?list.map(o=>{
+    const key=norm(o.item,false), ann=annotations[key]||{};
+    const type=ann.tipo||'', obs=ann.observacao||'';
+    const tr=isTrat(o), re=reopened(o);
+    const opts='<option value="">—</option>'+TIPOS.map(t=>'<option value="'+esc(t)+'"'+(type===t?' selected':'')+'>'+esc(t)+'</option>').join('');
+    const tags='<span class="tag '+ST[o.st][1]+'">'+ST[o.st][0]+'</span>'+(o.flag?'<span class="tag red" title="Um dos subinventários de consignado está positivo e o outro negativo">7105 × 7305 invertido</span>':'');
+    const when=tr&&ann.tratadoEm?' title="Tratado em '+new Date(ann.tratadoEm).toLocaleDateString('pt-BR')+'"':'';
+    const sit='<select class="cs sit '+(tr?'trat':'pend')+'" data-key="'+esc(key)+'"'+when+'><option value="pendente"'+(tr?'':' selected')+'>Pendente</option><option value="tratado"'+(tr?' selected':'')+'>Tratado OK</option></select>'+(re?'<span class="tag amb rb" title="O status mudou desde que o item foi tratado">Reaberto: status mudou</span>':'');
+    return '<tr'+(tr?' class="done"':'')+'><td>'+esc(o.item)+'</td><td class="d">'+esc(o.desc)+'</td><td class="n'+(o.a<0?' neg':'')+'">'+fmt(o.a)+'</td><td class="n'+(o.b<0?' neg':'')+'">'+fmt(o.b)+'</td><td class="n'+(o.d<0?' neg':'')+'">'+fmt(o.d)+'</td><td class="n'+(o.c<0?' neg':'')+'">'+fmt(o.c)+'</td><td class="n">'+fmt(o.r)+'</td><td class="n">'+fmt(o.p)+'</td><td class="n'+(o.dif<0?' neg':'')+'">'+fmt(o.dif)+'</td><td>'+tags+'</td><td>'+sit+'</td><td><select class="cs divType" data-key="'+esc(key)+'">'+opts+'</select></td><td class="obs"><button class="obsBtn'+(obs?'':' vazio')+'" data-key="'+esc(key)+'">'+(obs?esc(obs):'+ Adicionar observação')+'</button></td></tr>';
+  }).join(''):'<tr><td colspan="13" class="empty">Nenhum item neste filtro.</td></tr>';
+
+  document.querySelectorAll('.sit').forEach(el=>el.addEventListener('change',()=>{
+    const key=el.dataset.key, o=rows.find(x=>norm(x.item,false)===key);
+    const a=annotations[key]=annotations[key]||{};
+    if(el.value==='tratado'){a.situacao='tratado';if(o)a.stAt=sig(o);a.tratadoEm=Date.now()}
+    else{delete a.situacao;delete a.stAt;delete a.tratadoEm}
+    saveImportedData();
+    render();
+  }));
+  document.querySelectorAll('.divType').forEach(el=>el.addEventListener('change',()=>{
+    const key=el.dataset.key;
+    annotations[key]=annotations[key]||{};
+    if(el.value)annotations[key].tipo=el.value;else delete annotations[key].tipo;
+    saveImportedData();
+  }));
+  document.querySelectorAll('.obsBtn').forEach(btn=>btn.addEventListener('click',()=>openObservation(btn.dataset.key)));
+}
+function openObservation(key){
+  obsEditingKey=key;
+  const ann=annotations[key]||{};
+  $('obsItem').textContent='Item: '+key;
+  $('obsText').value=ann.observacao||'';
+  $('obsModal').classList.add('show');
+  $('obsText').focus();
+}
+function closeObservation(){obsEditingKey=null;$('obsModal').classList.remove('show');}
+$('obsCancel').addEventListener('click',closeObservation);
+$('obsModal').addEventListener('click',e=>{if(e.target.id==='obsModal')closeObservation()});
+$('obsSave').addEventListener('click',()=>{
+  if(!obsEditingKey)return;
+  const key=obsEditingKey;
+  annotations[key]=annotations[key]||{};
+  annotations[key].observacao=$('obsText').value.trim();
+  saveImportedData();
+  closeObservation();
+  draw();
+});
+
+$('q').addEventListener('input',draw);
+syncHead();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(syncHead);
+$('clearFilters').addEventListener('click',clearHeaderFilters);
+initHeaderFilters();
+$('clearAll').addEventListener('click',clearAllData);
+$('exp').addEventListener('click',()=>{
+  const map=o=>({Item:o.item,'Descrição':o.desc,'7102RIS':o.a,'7302RIS':o.b,'7105':o.d,'7305':o.c,'Receiving':o.r,'Pendente':o.p,'Diferença':o.dif,Status:ST[o.st][0],'Situação':isTrat(o)?'Tratado OK':'Pendente','Alerta consignado':o.flag?'7105 × 7305 invertido':'','Tipo de divergência':(annotations[norm(o.item,false)]||{}).tipo||'','Observação':(annotations[norm(o.item,false)]||{}).observacao||''});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.map(map)),'Conciliação');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.filter(isDiv).map(map)),'Divergências');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.filter(isTrat).map(map)),'Tratados OK');
+  XLSX.writeFile(wb,'conciliacao-recebimento.xlsx');
+});
+</script>
+</body>
+</html>
