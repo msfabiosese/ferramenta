@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reapro Estanteria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1116;
+  --bg-grid: #10151b;
+  --panel:#161C24;
+  --panel-2:#1D2530;
+  --border:#2A3441;
+  --border-soft:#20272F;
+  --text:#E8EDF3;
+  --text-muted:#8993A4;
+  --text-dim:#5C6779;
+  --amber:#F2A93B;
+  --green:#3ECF8E;
+  --red:#F1503D;
+  --yellow:#F2C94C;
+  --blue:#4EA1F3;
+  --purple:#B98CE0;
+  --mono:'JetBrains Mono', monospace;
+  --disp:'Space Grotesk', sans-serif;
+  --body:'Inter', sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--body);}
+body{
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  min-height:100vh;
+}
+::selection{background:var(--amber);color:#0D1116;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--panel);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+
+.wrap{max-width:1400px;margin:0 auto;padding:22px 24px 60px;}
+
+/* ---------- HEADER ---------- */
+header.top{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:20px;flex-wrap:wrap;gap:14px;
+}
+.brand-eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:6px;
+}
+h1{font-family:var(--disp);font-weight:700;font-size:28px;margin:0;letter-spacing:-0.01em;}
+.subtitle{color:var(--text-muted);font-size:13px;margin-top:4px;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{
+  font-family:var(--body);font-size:13px;font-weight:600;padding:9px 14px;border-radius:6px;
+  border:1px solid var(--border);background:var(--panel-2);color:var(--text);cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s;white-space:nowrap;
+}
+.btn:hover{border-color:var(--amber);color:var(--amber);}
+.btn.primary{background:var(--amber);color:#1A1204;border-color:var(--amber);}
+.btn.primary:hover{background:#ffbc55;color:#1A1204;}
+.btn.ghost{background:transparent;}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+input[type=file]{display:none;}
+
+/* ---------- EMPTY STATE ---------- */
+.empty{
+  border:1px dashed var(--border);border-radius:10px;padding:60px 30px;text-align:center;color:var(--text-muted);
+  background:var(--panel);margin-top:10px;
+}
+.empty .icon{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--amber);text-transform:uppercase;margin-bottom:10px;}
+.empty h2{font-family:var(--disp);color:var(--text);font-size:20px;margin:0 0 8px;}
+.empty p{max-width:520px;margin:0 auto 18px;font-size:13.5px;line-height:1.6;}
+
+/* ---------- FILTER BAR ---------- */
+.filterbar{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);
+  border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:20px;
+}
+.filterbar label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);display:block;margin-bottom:4px;font-family:var(--mono);}
+.filterbar select, .filterbar input[type=text], .filterbar input[type=number]{
+  background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-family:var(--body);
+  font-size:13px;padding:7px 9px;border-radius:5px;min-width:120px;
+}
+.filterbar input[type=number]{width:74px;min-width:0;font-family:var(--mono);}
+.filterbar .grp{display:flex;flex-direction:column;}
+.filterbar .grp.grow{flex:1;min-width:200px;}
+.filterbar .grp.grow input{width:100%;}
+.filterbar .clear{margin-left:auto;}
+
+/* ---------- KPI CARDS ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr);}}
+.kpi{
+  background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 15px;
+  position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--kpi-color,var(--amber));}
+.kpi .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin-bottom:8px;}
+.kpi .val{font-family:var(--disp);font-size:26px;font-weight:700;line-height:1;}
+.kpi .sub{font-size:11px;color:var(--text-muted);margin-top:6px;}
+
+/* ---------- SECTION ---------- */
+.section{margin-bottom:26px;}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.section-head h2{font-family:var(--disp);font-size:16px;margin:0;font-weight:600;}
+.section-head .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--amber);text-transform:uppercase;}
+.section-head .legend{display:flex;gap:14px;font-size:11px;color:var(--text-muted);align-items:center;}
+.legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;}
+.section-head select{background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-family:var(--body);font-size:12.5px;padding:6px 9px;border-radius:5px;}
+
+/* ---------- FAMÍLIA — BLOCOS DE SAÚDE ---------- */
+.fam-block{
+  background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;
+}
+.fam-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.fam-head .name{font-family:var(--disp);font-size:15px;font-weight:700;}
+.fam-head .pct{font-family:var(--mono);font-size:13px;color:var(--text-muted);}
+.fam-bar{height:5px;border-radius:3px;background:var(--border-soft);overflow:hidden;margin-bottom:14px;}
+.fam-bar .fill{height:100%;background:linear-gradient(90deg,var(--red),var(--yellow),var(--green));}
+.fam-stats{display:flex;gap:18px;flex-wrap:wrap;}
+.fam-stat{font-family:var(--mono);font-size:11.5px;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+.fam-stat .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+/* ---------- ITENS CRÍTICOS ---------- */
+.crit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.crit-card{background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:11px 12px;cursor:default;transition:.12s;position:relative;overflow:hidden;}
+.crit-card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.35);border-color:var(--amber);}
+.crit-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:var(--crit-color,var(--amber));}
+.crit-card .peca{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.crit-card .desc{font-family:var(--body);font-size:10.5px;color:var(--text-dim);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.crit-card .val{font-family:var(--disp);font-size:16px;font-weight:700;line-height:1;}
+.crit-card .bar{height:3px;border-radius:2px;background:var(--border-soft);margin-top:8px;overflow:hidden;}
+.crit-card .bar .f{height:100%;}
+.empty-msg{color:var(--text-dim);font-size:12.5px;text-align:center;padding:30px 10px;font-family:var(--body);}
+
+/* ---------- TABLES ---------- */
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{
+  text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-dim);padding:10px 12px;border-bottom:1px solid var(--border);background:var(--panel-2);
+  position:sticky;top:0;
+}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);}
+tbody tr:hover{background:var(--panel-2);}
+tbody tr:last-child td{border-bottom:none;}
+.status-pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;font-family:var(--body);white-space:nowrap;}
+.status-critico{background:rgba(241,80,61,.15);color:var(--red);}
+.status-atencao{background:rgba(242,201,76,.15);color:var(--yellow);}
+.status-ok{background:rgba(62,207,142,.15);color:var(--green);}
+.status-sem{background:rgba(137,147,164,.15);color:var(--text-muted);}
+.scroll-y{max-height:560px;overflow-y:auto;}
+
+
+/* ---------- ABAS ---------- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+.tab{font-family:var(--disp);font-weight:600;font-size:14px;padding:10px 18px;background:transparent;border:1px solid transparent;border-bottom:none;color:var(--text-muted);cursor:pointer;border-radius:7px 7px 0 0;margin-bottom:-1px;display:inline-flex;align-items:center;gap:8px;transition:.15s;}
+.tab:hover{color:var(--amber);}
+.tab.active{background:var(--panel);border-color:var(--border);color:var(--amber);}
+.tab .badge{font-family:var(--mono);font-size:10.5px;background:var(--amber);color:#1A1204;border-radius:10px;padding:1px 7px;font-weight:700;}
+.tab .badge:empty{display:none;}
+.tabpane{display:none;}
+.tabpane.active{display:block;}
+
+/* ---------- DESCER PALETES ---------- */
+.filterbar input.txt{background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:7px 9px;border-radius:5px;width:110px;min-width:0;}
+.addr-note{font-family:var(--mono);font-size:11.5px;color:var(--text-muted);background:var(--panel);border:1px solid var(--border-soft);border-left:3px solid var(--blue);border-radius:6px;padding:9px 12px;margin-bottom:18px;line-height:1.6;}
+.addr-note b{color:var(--text);}
+.addr-list{font-size:11px;line-height:1.7;white-space:nowrap;}
+.addr-list .q{color:var(--text-dim);}
+.addr-list .none{color:var(--text-dim);font-family:var(--body);white-space:normal;}
+.status-esgot{background:rgba(241,80,61,.15);color:var(--red);}
+.status-baixo{background:rgba(242,201,76,.15);color:var(--yellow);}
+.status-excesso{background:rgba(74,158,255,.15);color:var(--blue);}
+.status-frac{background:rgba(185,140,224,.18);color:var(--purple);}
+.status-diverg{background:rgba(241,80,61,.15);color:var(--red);}
+.status-semaereo{background:rgba(137,147,164,.15);color:var(--text-muted);}
+td.num-strong{color:var(--amber);font-weight:700;font-size:14px;}
+
+.chk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-muted);cursor:pointer;user-select:none;padding-bottom:7px;}
+.chk input{accent-color:var(--amber);width:15px;height:15px;cursor:pointer;}
+tr.grp-first td{border-top:2px solid var(--border);}
+td.dest-miss{color:var(--yellow);font-family:var(--body);font-size:12px;}
+td.dest-miss .q{color:var(--text-dim);}
+.print-only{display:none;}
+@media print{
+  @page{size:A4 landscape;margin:10mm;}
+  body.printing header.top, body.printing .tabs, body.printing #paneMain, body.printing .tabpane:not(.active),
+  body.printing .filterbar, body.printing .addr-note, body.printing .kpis,
+  body.printing footer.note, body.printing .legend{display:none !important;}
+  body.printing, body.printing #app, body.printing .tabpane{background:#fff !important;display:block;}
+  body.printing .print-target{background:#fff !important;border:none !important;box-shadow:none !important;}
+  body.printing .print-target *{color:#000 !important;background:transparent !important;border-color:#888 !important;text-shadow:none !important;}
+  body.printing .print-only{display:block;font-family:var(--body);font-size:12px;margin-bottom:8px;}
+  body.printing .scroll-y, body.printing .table-wrap{max-height:none !important;overflow:visible !important;}
+  body.printing table{font-size:10px;}
+  body.printing thead{display:table-header-group;}
+  body.printing tr{page-break-inside:avoid;}
+  body.printing tr.sem-pal{display:none !important;}
+  body.printing.no-semdest tr.sem-dest{display:none !important;}
+  body.printing .status-pill{border:1px solid #888;white-space:normal;padding:1px 5px;font-size:9px;}
+  body.printing .table-wrap{border:none !important;border-radius:0 !important;box-shadow:none !important;width:100% !important;}
+  body.printing .print-target, body.printing .section{overflow:visible !important;margin:0 !important;}
+  body.printing table{width:100% !important;min-width:0 !important;table-layout:auto;}
+  body.printing thead th{white-space:normal !important;padding:3px 4px !important;}
+  body.printing tbody td{padding:3px 4px !important;}
+  body.printing td.num-strong{font-size:11px;}
+  body.printing .addr-wrap{max-width:none;}
+  body.printing tr.grp-first td{border-top-width:1px;}
+  body.printing ::-webkit-scrollbar{display:none;}
+}
+.addr-wrap{font-size:11px;line-height:1.6;max-width:420px;color:var(--text);}
+.addr-wrap .q{color:var(--text-dim);}
+
+footer.note{color:var(--text-dim);font-size:11px;text-align:center;margin-top:30px;font-family:var(--mono);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="brand-eyebrow">KANBAN + ESTOQUE &middot; ROTA ESTANTERIA</div>
+      <h1>Reapro Estanteria</h1>
+      <div class="subtitle" id="subtitleText">Importe a base do Kanban (frequência de atendimento) para começar.</div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="btnImportKanban">📥 Importar Kanban (.csv)</button>
+      <button class="btn" id="btnImportEstoque" disabled>📦 Importar Estoque (.csv)</button>
+      <button class="btn" id="btnImportLocal" disabled>📍 Estoque por localização (.csv)</button>
+      <button class="btn" id="btnImportPecas" disabled>🔀 Peças / PCB (.csv)</button>
+      <button class="btn ghost" id="btnExportCsv" disabled>⇩ Exportar resultados</button>
+      <input type="file" id="fileKanban" accept=".csv">
+      <input type="file" id="fileEstoque" accept=".csv">
+      <input type="file" id="fileLocal" accept=".csv">
+      <input type="file" id="filePecas" accept=".csv">
+    </div>
+  </header>
+
+  <div id="emptyState" class="empty">
+    <div class="icon">Passo 1</div>
+    <h2>Nenhuma base carregada</h2>
+    <p>Importe primeiro a base do <strong>Kanban</strong> (ex.: <em>SAI - Kanban.csv</em>) — ela define a frequência de atendimento de cada item. Só entram no painel os lançamentos com rota <strong>ESTANTERIA</strong>. Depois importe o <strong>Estoque</strong> (ex.: <em>ARM - Estoque.csv</em>) para cruzar com a quantidade disponível.</p>
+    <button class="btn primary" id="btnImportLayout2">📥 Importar Kanban (.csv)</button>
+  </div>
+
+  <div id="app" style="display:none;">
+
+    <div class="tabs">
+      <button class="tab active" data-tab="paneMain">Painel de cobertura</button>
+      <button class="tab" data-tab="paneDescer">Descer paletes <span class="badge" id="tabBadge"></span></button>
+      <button class="tab" data-tab="paneSubir">Subir paletes <span class="badge" id="tabBadgeSubir"></span></button>
+      <button class="tab" data-tab="paneFrac">Itens fracionados <span class="badge" id="tabBadgeFrac"></span></button>
+      <button class="tab" data-tab="paneDiverg">Etiquetas divergentes <span class="badge" id="tabBadgeDiverg"></span></button>
+    </div>
+
+    <div class="tabpane active" id="paneMain">
+
+    <div class="filterbar">
+      <div class="grp grow">
+        <label>Buscar</label>
+        <input type="text" id="fSearch" placeholder="Peça ou descrição...">
+      </div>
+      <div class="grp">
+        <label>Família</label>
+        <select id="fFamilia"><option value="">Todas</option></select>
+      </div>
+      <div class="grp">
+        <label>Prioridade</label>
+        <select id="fPrioridade">
+          <option value="">Todas</option>
+          <option value="critico">Crítico</option>
+          <option value="atencao">Atenção</option>
+          <option value="ok">OK</option>
+          <option value="sem">Sem consumo</option>
+        </select>
+      </div>
+      <div class="grp">
+        <label>Crítico &lt; (dias)</label>
+        <input type="number" id="fCrit" value="3" min="0" step="1">
+      </div>
+      <div class="grp">
+        <label>Atenção &lt; (dias)</label>
+        <input type="number" id="fAtn" value="7" min="0" step="1">
+      </div>
+      <button class="btn ghost clear" id="btnClear">Limpar filtros</button>
+    </div>
+
+    <div class="kpis" id="kpiGrid"></div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Saúde por família</h2>
+        <span class="eyebrow" id="famPeriodo">Rota Estanteria</span>
+      </div>
+      <div id="famBlocks"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Itens mais críticos</h2>
+        <div class="legend">
+          <span><span class="sw" style="background:var(--red)"></span>Crítico</span>
+          <span><span class="sw" style="background:var(--yellow)"></span>Atenção</span>
+          <span><span class="sw" style="background:var(--green)"></span>OK</span>
+        </div>
+      </div>
+      <div class="crit-grid" id="criticalGrid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Todos os itens da rota</h2>
+        <select id="fOrdenar">
+          <option value="cobertura">Ordenar: menor cobertura</option>
+          <option value="frequencia">Ordenar: maior frequência</option>
+          <option value="estoque">Ordenar: menor estoque</option>
+          <option value="peca">Ordenar: peça (A-Z)</option>
+        </select>
+      </div>
+      <div class="table-wrap scroll-y">
+        <table>
+          <thead>
+            <tr>
+              <th>Peça</th><th>Descrição</th><th>Família</th>
+              <th>Kanbans/sem.</th><th>Consumo/dia</th><th>Estoque</th><th>Cobertura</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    </div><!-- /paneMain -->
+
+    <div class="tabpane" id="paneDescer">
+
+      <div class="filterbar">
+        <div class="grp grow">
+          <label>Buscar</label>
+          <input type="text" id="dSearch" placeholder="Peça ou descrição...">
+        </div>
+        <div class="grp">
+          <label>Zona (1º caractere)</label>
+          <input class="txt" type="text" id="dZona" value="1" style="width:70px;">
+        </div>
+        <div class="grp">
+          <label>Ruas de destino</label>
+          <input class="txt" type="text" id="dRuasDest" value="16-22">
+        </div>
+        <div class="grp">
+          <label>Ruas só p/ análise</label>
+          <input class="txt" type="text" id="dRuasExtra" value="2,23,24">
+        </div>
+        <div class="grp">
+          <label>Picking: nível até</label>
+          <input type="number" id="dNivelMax" value="10" min="0" step="1">
+        </div>
+        <div class="grp">
+          <label>Descer se cobertura &lt; (d)</label>
+          <input type="number" id="dCobMin" value="7" min="0" step="1">
+        </div>
+        <div class="grp">
+          <label>Meta de cobertura (d)</label>
+          <input type="number" id="dMeta" value="14" min="1" step="1">
+        </div>
+        <div class="grp">
+          <label>Coluna do palete (etiqueta mãe)</label>
+          <select id="dPaleteCol" style="min-width:210px;"><option value="">(nenhuma — cada linha = 1 palete)</option></select>
+        </div>
+        <div class="grp">
+          <label>Rua: 1º caractere</label>
+          <input type="number" id="dRuaIni" value="2" min="1" step="1" title="Só vale se o endereço não tiver separadores (- . /)">
+        </div>
+        <div class="grp">
+          <label>Rua: nº caracteres</label>
+          <input type="number" id="dRuaLen" value="2" min="1" step="1" title="Só vale se o endereço não tiver separadores (- . /)">
+        </div>
+        <label class="chk"><input type="checkbox" id="dPrintSemDest"> Imprimir itens sem posição de destino</label>
+        <button class="btn ghost" id="btnPrintDescer">🖨 Imprimir</button>
+        <button class="btn ghost" id="btnExportDescer">⇩ Exportar lista</button>
+      </div>
+
+      <div class="addr-note" id="addrNote"></div>
+
+      <div class="kpis" id="descerKpis"></div>
+
+      <div class="section print-target" id="descerPrint">
+        <div class="print-only" id="printHead"></div>
+        <div class="section-head">
+          <h2>Paletes para descer do aéreo ao picking</h2>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--red)"></span>Picking esgotado</span>
+            <span><span class="sw" style="background:var(--yellow)"></span>Cobertura baixa</span>
+            <span><span class="sw" style="background:var(--text-dim)"></span>Sem palete no aéreo</span>
+          </div>
+        </div>
+        <div class="table-wrap scroll-y">
+          <table>
+            <thead>
+              <tr>
+                <th>Peça</th><th>Descrição</th><th>Consumo/dia</th><th>Picking</th><th>Cob. picking</th><th>Aéreo</th>
+                <th>Retirar de (aéreo)</th><th>Data ref.</th><th>Palete</th><th>Qtd</th><th>Cx</th><th>Levar para (picking)</th><th>Cob. após</th><th>Situação</th>
+              </tr>
+            </thead>
+            <tbody id="descerTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /paneDescer -->
+
+    <div class="tabpane" id="paneSubir">
+
+      <div class="filterbar">
+        <div class="grp grow">
+          <label>Buscar</label>
+          <input type="text" id="sSearch" placeholder="Peça ou descrição...">
+        </div>
+        <div class="grp">
+          <label>Excesso se cobertura &gt; (d)</label>
+          <input type="number" id="sMax" value="30" min="1" step="1">
+        </div>
+        <div class="grp">
+          <label>Manter no picking (d)</label>
+          <input type="number" id="sKeep" value="28" min="1" step="1">
+        </div>
+        <div class="grp">
+          <label>Excluir ruas da análise</label>
+          <input class="txt" type="text" id="sExcluir" value="" placeholder="ex.: 2, 23-24">
+        </div>
+        <label class="chk"><input type="checkbox" id="sPrintSemDest"> Imprimir itens sem posição de destino</label>
+        <button class="btn ghost" id="btnPrintSubir">🖨 Imprimir</button>
+        <button class="btn ghost" id="btnExportSubir">⇩ Exportar lista</button>
+      </div>
+
+      <div class="addr-note" id="subirNote"></div>
+
+      <div class="kpis" id="subirKpis"></div>
+
+      <div class="section print-target" id="subirPrint">
+        <div class="print-only" id="printHeadSubir"></div>
+        <div class="section-head">
+          <h2>Paletes para subir do picking ao aéreo</h2>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--blue)"></span>Excesso no picking</span>
+          </div>
+        </div>
+        <div class="table-wrap scroll-y">
+          <table>
+            <thead>
+              <tr>
+                <th>Peça</th><th>Descrição</th><th>Consumo/dia</th><th>Picking</th><th>Cob. picking</th><th>Aéreo</th>
+                <th>Retirar de (picking)</th><th>Data ref.</th><th>Palete</th><th>Qtd</th><th>Cx</th><th>Levar para (aéreo)</th><th>Cob. após</th><th>Situação</th>
+              </tr>
+            </thead>
+            <tbody id="subirTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /paneSubir -->
+
+    <div class="tabpane" id="paneFrac">
+
+      <div class="filterbar">
+        <div class="grp grow">
+          <label>Buscar</label>
+          <input type="text" id="fSearch" placeholder="Peça ou descrição...">
+        </div>
+        <div class="grp">
+          <label>Ruas de origem (estanteria)</label>
+          <input class="txt" type="text" id="fRuasOrigem" value="16-24">
+        </div>
+        <div class="grp">
+          <label>Rua 2: origem acima do nível</label>
+          <input type="number" id="fRua2NivelOrigem" value="13" min="0" step="1">
+        </div>
+        <div class="grp">
+          <label>Destino rua 2: nível até</label>
+          <input type="number" id="fRua2NivelDestino" value="13" min="0" step="1">
+        </div>
+        <div class="grp">
+          <label>Destino rua 2: posição a partir de</label>
+          <input type="number" id="fRua2PosDestino" value="10" min="0" step="1">
+        </div>
+        <div class="grp">
+          <label>Destino ruas 3 e 4: nível até</label>
+          <input type="number" id="fRua34NivelDestino" value="26" min="0" step="1">
+        </div>
+        <label class="chk"><input type="checkbox" id="fPrintSemDest"> Imprimir itens sem posição de destino</label>
+        <button class="btn ghost" id="btnPrintFrac">🖨 Imprimir</button>
+        <button class="btn ghost" id="btnExportFrac">⇩ Exportar lista</button>
+      </div>
+
+      <div class="addr-note" id="fracNote"></div>
+
+      <div class="kpis" id="fracKpis"></div>
+
+      <div class="section print-target" id="fracPrint">
+        <div class="print-only" id="printHeadFrac"></div>
+        <div class="section-head">
+          <h2>Caixas fracionadas para embalagens fracionadas</h2>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--purple)"></span>Fracionado</span>
+          </div>
+        </div>
+        <div class="table-wrap scroll-y">
+          <table>
+            <thead>
+              <tr>
+                <th>Peça</th><th>Descrição</th><th>PCB</th><th>Retirar de (estanteria)</th><th>Data ref.</th>
+                <th>Palete</th><th>Qtd</th><th>Cx fracionadas</th><th>Levar para (fracionados)</th><th>Situação</th>
+              </tr>
+            </thead>
+            <tbody id="fracTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /paneFrac -->
+
+    <div class="tabpane" id="paneDiverg">
+
+      <div class="filterbar">
+        <div class="grp grow">
+          <label>Buscar</label>
+          <input type="text" id="dgSearch" placeholder="Peça, endereço ou etiqueta...">
+        </div>
+        <button class="btn ghost" id="btnPrintDiverg">🖨 Imprimir</button>
+        <button class="btn ghost" id="btnExportDiverg">⇩ Exportar lista</button>
+      </div>
+
+      <div class="addr-note" id="divergNote"></div>
+
+      <div class="kpis" id="divergKpis"></div>
+
+      <div class="section print-target" id="divergPrint">
+        <div class="print-only" id="printHeadDiverg"></div>
+        <div class="section-head">
+          <h2>Posições com mais de uma etiqueta mãe</h2>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--red)"></span>Etiquetas divergentes</span>
+          </div>
+        </div>
+        <div class="table-wrap scroll-y">
+          <table>
+            <thead>
+              <tr>
+                <th>Endereço</th><th>Etiquetas no endereço</th><th>Peça(s)</th>
+                <th>Qtd</th><th>Cx</th><th>Data ref. (mais antiga)</th><th>Situação</th>
+              </tr>
+            </thead>
+            <tbody id="divergTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /paneDiverg -->
+
+  </div>
+
+  <footer class="note">Reapro Estanteria &middot; processamento 100% local no navegador &middot; nenhum dado sai da sua máquina</footer>
+</div>
+
+<script>
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const state = {
+  kanbanRows: [],   // linhas cruas do Kanban, já filtradas para rota ESTANTERIA
+  stockRows: [],    // linhas cruas do Estoque
+  items: [],        // itens calculados (join kanban + estoque)
+  periodDays: 0,
+  periodStart: null,
+  periodEnd: null,
+  filters: { search:'', familia:'', prioridade:'', crit:3, atn:7, ordenar:'cobertura' }
+};
+
+/* ============================================================
+   HELPERS (mesmos utilitários do painel de Inventário ILA)
+   ============================================================ */
+function normKey(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+function toNum(v){
+  if(v===undefined||v===null||v==='') return 0;
+  const n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || parseFloat(String(v).replace(',','.'));
+  return isNaN(n)?0:n;
+}
+function parseDateBR(value){
+  if(!value) return null;
+  const raw = String(value).trim();
+  if(!raw) return null;
+  const m = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);
+  if(m){
+    let year = parseInt(m[3],10);
+    if(year<100) year += 2000;
+    const date = new Date(year, parseInt(m[2],10)-1, parseInt(m[1],10));
+    return isNaN(date.getTime()) ? null : date;
+  }
+  const parsed = new Date(raw);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+function pct(a,b){ return b>0 ? (a/b*100) : 0; }
+function fmtPct(v){ return (v||0).toFixed(0) + '%'; }
+function fmtInt(v){ return Number(v||0).toLocaleString('pt-BR'); }
+function fmtDec(v,casas){ return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:casas||1,maximumFractionDigits:casas||1}); }
+function fmtDias(v){
+  if(v===null || v===undefined) return '—';
+  if(v>=1000) return '999+ d';
+  return fmtDec(v,1) + ' d';
+}
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function heatColor(p){
+  if(p<=0) return '#3A4351';
+  if(p>=100) return '#3ECF8E';
+  if(p<50){ const t=p/50; return lerpColor('#F1503D','#F2C94C',t); }
+  const t=(p-50)/50; return lerpColor('#F2C94C','#3ECF8E',t);
+}
+function lerpColor(a,b,t){
+  const pa=hexToRgb(a), pb=hexToRgb(b);
+  const r=Math.round(pa.r+(pb.r-pa.r)*t);
+  const g=Math.round(pa.g+(pb.g-pa.g)*t);
+  const bl=Math.round(pa.b+(pb.b-pa.b)*t);
+  return `rgb(${r},${g},${bl})`;
+}
+function hexToRgb(h){
+  h=h.replace('#','');
+  return {r:parseInt(h.slice(0,2),16), g:parseInt(h.slice(2,4),16), b:parseInt(h.slice(4,6),16)};
+}
+function parseCSV(text){
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r\n|\n|\r/).filter(l=>l.trim().length>0);
+  if(lines.length===0) return [];
+  const delim = lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
+  const headerCells = splitCSVLine(lines[0], delim).map(normKey);
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const cells = splitCSVLine(lines[i], delim);
+    const obj={};
+    headerCells.forEach((h,idx)=> obj[h]=(cells[idx]||'').trim());
+    rows.push(obj);
+  }
+  return rows;
+}
+function splitCSVLine(line, delim){
+  const out=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){ inQ=!inQ; continue; }
+    if(c===delim && !inQ){ out.push(cur); cur=''; continue; }
+    cur+=c;
+  }
+  out.push(cur);
+  return out;
+}
+
+/* ============================================================
+   IMPORT: KANBAN.CSV — define a rota (ESTANTERIA) e a frequência
+   ============================================================ */
+function triggerKanban(){ document.getElementById('fileKanban').click(); }
+document.getElementById('btnImportKanban').onclick = triggerKanban;
+document.getElementById('btnImportLayout2').onclick = triggerKanban;
+document.getElementById('fileKanban').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const rows = parseCSV(ev.target.result);
+    if(rows.length===0){ alert('O arquivo do Kanban está vazio ou não pôde ser lido.'); return; }
+    const cols = Object.keys(rows[0]);
+    if(!cols.includes('routetype') || !cols.includes('partnumber')){
+      alert('Não encontrei as colunas ROUTETYPE e/ou PARTNUMBER no arquivo do Kanban. Confirme o cabeçalho.');
+      return;
+    }
+    // só nos interessa a rota ESTANTERIA
+    state.kanbanRows = rows.filter(r=>normKey(r.routetype)==='estanteria' && r.partnumber).map(r=>({
+      partnumber: r.partnumber.trim(),
+      status: (r.status||'').trim().toUpperCase(),
+      finalizado: (r.status||'').trim().toUpperCase()==='FINALIZADO',
+      data: parseDateBR(r.orderdate),
+      qtd: toNum(r.standardpack) || toNum(r.quantityread) || toNum(r.quantity),
+    }));
+    if(state.kanbanRows.length===0){
+      alert('Não encontrei nenhum lançamento com rota ESTANTERIA nesse arquivo.');
+      return;
+    }
+    document.getElementById('btnImportEstoque').disabled=false;
+    document.getElementById('btnImportLocal').disabled=false;
+    document.getElementById('btnImportPecas').disabled=false;
+    document.getElementById('emptyState').style.display='none';
+    document.getElementById('app').style.display='block';
+    const itensUnicos = new Set(state.kanbanRows.map(r=>r.partnumber)).size;
+    document.getElementById('subtitleText').textContent =
+      `Kanban: ${fmtInt(state.kanbanRows.length)} lançamentos rota Estanteria (${fmtInt(itensUnicos)} itens). Agora importe o Estoque (.csv).`;
+    computeItems();
+    populateFilterOptions();
+    renderAll();
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value='';
+});
+
+/* ============================================================
+   IMPORT: ESTOQUE.CSV — quantidade disponível de cada peça
+   ============================================================ */
+document.getElementById('btnImportEstoque').onclick = ()=>document.getElementById('fileEstoque').click();
+document.getElementById('fileEstoque').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const rows = parseCSV(ev.target.result);
+    if(rows.length===0){ alert('O arquivo de Estoque está vazio ou não pôde ser lido.'); return; }
+    const cols = Object.keys(rows[0]);
+    if(!cols.includes('pieza')){
+      alert('Não encontrei a coluna "Pieza" no arquivo de Estoque. Confirme o cabeçalho.');
+      return;
+    }
+    state.stockRows = rows.filter(r=>r.pieza).map(r=>({
+      pieza: r.pieza.trim(),
+      descricao: (r.descripcion1||'').trim(),
+      familia: (r.familia||'').trim() || 'Sem família',
+      origem: (r.origen1||'').trim(),
+      ubicacion: (r.ubicacion||'').trim(),
+      qtd: toNum(r.cantidadtotal),
+      raw: r,
+    }));
+    state.stockCols = Object.keys(rows[0]);
+    populatePaleteCols();
+    document.getElementById('btnExportCsv').disabled=false;
+    computeItems();
+    populateFilterOptions();
+    renderAll();
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value='';
+});
+
+/* ============================================================
+   IMPORT: ESTOQUE POR LOCALIZAÇÃO — coluna Label vazia = endereço vazio
+   ============================================================ */
+function parseDataRef(v){
+  const m = String(v||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(!m) return null;
+  const t = new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0)).getTime();
+  return isNaN(t) ? null : t;
+}
+function fmtData(ts){ return ts==null ? '—' : new Date(ts).toLocaleDateString('pt-BR'); }
+function keyEnd(v){ return String(v||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase(); }
+document.getElementById('btnImportLocal').onclick = ()=>document.getElementById('fileLocal').click();
+document.getElementById('fileLocal').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const rows = parseCSV(ev.target.result);
+    if(rows.length===0){ alert('O arquivo de Estoque por localização está vazio ou não pôde ser lido.'); return; }
+    const cols = Object.keys(rows[0]);
+    if(!cols.includes('name') || !cols.includes('label')){
+      alert('Não encontrei as colunas "name" (endereço) e "label" no arquivo de Estoque por localização. Confirme o cabeçalho.');
+      return;
+    }
+    const ocupados = new Set(), vazios = new Map();
+    rows.forEach(r=>{
+      const nome = (r.name||'').trim(); if(!nome) return;
+      const k = keyEnd(nome);
+      if((r.label||'').trim()) ocupados.add(k);
+      else if(!vazios.has(k)) vazios.set(k, nome);
+    });
+    // vazio = endereço em que nenhuma linha tem Label
+    state.locVazios = [...vazios.entries()].filter(([k])=>!ocupados.has(k)).map(([,n])=>n);
+    state.locLoaded = true;
+    document.getElementById('subtitleText').textContent =
+      `Localização: ${fmtInt(state.locVazios.length)} endereços vazios de ${fmtInt(vazios.size + ocupados.size)} endereços no arquivo.`;
+    renderAll();
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value='';
+});
+
+/* ============================================================
+   IMPORT: PEÇAS / PCB — arquivo tem 2 colunas chamadas "CODE"
+   (a 1ª é o código do item, a 2ª mais adiante é a família), então
+   não dá para usar parseCSV genérico (colidiria). Lemos pela posição.
+   ============================================================ */
+function parsePecasPCB(text){
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r\n|\n|\r/).filter(l=>l.trim().length>0);
+  if(lines.length===0) return null;
+  const delim = lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
+  const header = splitCSVLine(lines[0], delim).map(h=>h.trim().toLowerCase());
+  const idxCode = header.indexOf('code'); // 1ª ocorrência = código do item
+  const idxPcb = header.indexOf('quantitybox');
+  if(idxCode<0 || idxPcb<0) return null;
+  const map = {};
+  for(let i=1;i<lines.length;i++){
+    const cells = splitCSVLine(lines[i], delim);
+    const code = (cells[idxCode]||'').trim();
+    const pcbRaw = (cells[idxPcb]||'').trim().replace(',', '.');
+    if(!code) continue;
+    const pcb = parseFloat(pcbRaw);
+    if(!isNaN(pcb) && pcb>0) map[code] = pcb;
+  }
+  return map;
+}
+document.getElementById('btnImportPecas').onclick = ()=>document.getElementById('filePecas').click();
+document.getElementById('filePecas').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const map = parsePecasPCB(ev.target.result);
+    if(!map){ alert('Não encontrei as colunas "CODE" (código do item) e "QUANTITYBOX" (PCB) no arquivo de Peças. Confirme o cabeçalho.'); return; }
+    state.pcbMap = map;
+    state.pcbLoaded = true;
+    renderAll();
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value='';
+});
+
+/* ============================================================
+   CÁLCULO: frequência (Kanban) + estoque (Estoque) por peça
+   ============================================================ */
+function computeItems(){
+  const finalizados = state.kanbanRows.filter(r=>r.finalizado && r.data);
+  if(finalizados.length===0){ state.items=[]; state.periodDays=0; return; }
+
+  const datas = finalizados.map(r=>r.data.getTime());
+  state.periodStart = new Date(Math.min(...datas));
+  state.periodEnd = new Date(Math.max(...datas));
+  state.periodDays = Math.max(1, Math.round((state.periodEnd-state.periodStart)/86400000));
+
+  // agrupa Kanban (rota Estanteria) por peça
+  const kbMap = {};
+  state.kanbanRows.forEach(r=>{
+    const g = kbMap[r.partnumber] = kbMap[r.partnumber] || {qtdKanbans:0, pecasTotal:0};
+    if(r.finalizado){ g.qtdKanbans += 1; g.pecasTotal += r.qtd; }
+  });
+
+  // agrupa Estoque por peça
+  const stMap = {};
+  state.stockRows.forEach(r=>{
+    const g = stMap[r.pieza] = stMap[r.pieza] || {qtd:0, descricao:'', familia:'', origem:''};
+    g.qtd += r.qtd;
+    if(r.descricao && !g.descricao) g.descricao = r.descricao;
+    if(r.familia && !g.familia) g.familia = r.familia;
+    if(r.origem && !g.origem) g.origem = r.origem;
+  });
+
+  const periodWeeks = state.periodDays/7;
+  state.items = Object.keys(kbMap).map(peca=>{
+    const kb = kbMap[peca];
+    const st = stMap[peca] || {qtd:0, descricao:'', familia:'Sem família', origem:''};
+    const consumoDiario = kb.pecasTotal / state.periodDays;
+    const freqSemanal = kb.qtdKanbans / periodWeeks;
+    const cobertura = consumoDiario>0 ? st.qtd/consumoDiario : null;
+    return {
+      peca,
+      descricao: st.descricao || '—',
+      familia: st.familia || 'Sem família',
+      origem: st.origem,
+      qtdKanbans: kb.qtdKanbans,
+      freqSemanal,
+      pecasTotal: kb.pecasTotal,
+      consumoDiario,
+      estoque: st.qtd,
+      cobertura,
+    };
+  });
+}
+
+function prioridadeDe(item){
+  if(item.cobertura===null) return 'sem';
+  if(item.cobertura < state.filters.crit) return 'critico';
+  if(item.cobertura < state.filters.atn) return 'atencao';
+  return 'ok';
+}
+function scoreSaude(item, teto){
+  // 0 = sem cobertura nenhuma · 100 = cobertura confortável (teto = atn * 3)
+  if(item.cobertura===null) return 100;
+  return Math.max(0, Math.min(100, (item.cobertura/teto)*100));
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+function populateFilterOptions(){
+  const sel = document.getElementById('fFamilia');
+  const atual = sel.value;
+  const familias = [...new Set(state.items.map(i=>i.familia))].sort((a,b)=>a.localeCompare(b,'pt'));
+  sel.innerHTML = '<option value="">Todas</option>' + familias.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join('');
+  sel.value = familias.includes(atual) ? atual : '';
+}
+function applyFilters(items){
+  const f = state.filters;
+  let out = items.filter(i=>{
+    if(f.search){
+      const s = f.search.toLowerCase();
+      if(!i.peca.toLowerCase().includes(s) && !i.descricao.toLowerCase().includes(s)) return false;
+    }
+    if(f.familia && i.familia!==f.familia) return false;
+    if(f.prioridade && prioridadeDe(i)!==f.prioridade) return false;
+    return true;
+  });
+  const ord = f.ordenar;
+  out = out.slice().sort((a,b)=>{
+    if(ord==='frequencia') return b.freqSemanal-a.freqSemanal;
+    if(ord==='estoque') return a.estoque-b.estoque;
+    if(ord==='peca') return a.peca.localeCompare(b.peca,'pt');
+    // cobertura: sem consumo por último, senão menor cobertura primeiro
+    const av = a.cobertura===null ? Infinity : a.cobertura;
+    const bv = b.cobertura===null ? Infinity : b.cobertura;
+    return av-bv;
+  });
+  return out;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderAll(){
+  if(state.items.length===0) return;
+  renderKpis();
+  renderFamBlocks();
+  renderCritical();
+  renderTable();
+  renderDescer();
+  renderFrac();
+  renderDiverg();
+}
+
+function renderKpis(){
+  const items = state.items;
+  const criticos = items.filter(i=>prioridadeDe(i)==='critico').length;
+  const atencao = items.filter(i=>prioridadeDe(i)==='atencao').length;
+  const ok = items.filter(i=>prioridadeDe(i)==='ok').length;
+  const semConsumo = items.filter(i=>prioridadeDe(i)==='sem').length;
+  const comCobertura = items.filter(i=>i.cobertura!==null);
+  const coberturaMedia = comCobertura.length ? comCobertura.reduce((a,i)=>a+i.cobertura,0)/comCobertura.length : 0;
+  const freqTotal = items.reduce((a,i)=>a+i.qtdKanbans,0) / (state.periodDays/7);
+  const estoqueTotal = items.reduce((a,i)=>a+i.estoque,0);
+  const kanbansPeriodo = items.reduce((a,i)=>a+i.qtdKanbans,0);
+  const esgotados = items.filter(i=>i.estoque===0 && i.consumoDiario>0).length;
+
+  const cards = [
+    {lbl:'Itens rota Estanteria', val:fmtInt(items.length), sub:`${fmtInt(state.stockRows.length?items.filter(i=>i.estoque>0||stockHas(i.peca)).length:0)} com estoque cadastrado`, color:'var(--amber)'},
+    {lbl:'Críticos', val:fmtInt(criticos), sub:`< ${state.filters.crit} dias de cobertura`, color:'var(--red)'},
+    {lbl:'Em atenção', val:fmtInt(atencao), sub:`< ${state.filters.atn} dias de cobertura`, color:'var(--yellow)'},
+    {lbl:'OK', val:fmtInt(ok), sub:`≥ ${state.filters.atn} dias de cobertura`, color:'var(--green)'},
+    {lbl:'Esgotados com consumo', val:fmtInt(esgotados), sub:'estoque zerado e demanda ativa', color:'var(--red)'},
+    {lbl:'Cobertura média', val:fmtDec(coberturaMedia,1)+' d', sub:`${semConsumo} itens sem consumo no período`, color:'var(--blue)'},
+    {lbl:'Frequência média', val:fmtDec(freqTotal,1)+'/sem', sub:`${fmtInt(kanbansPeriodo)} kanbans no período`, color:'var(--amber)'},
+    {lbl:'Estoque total', val:fmtInt(estoqueTotal), sub:'peças, itens da rota', color:'var(--green)'},
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.map(c=>`
+    <div class="kpi" style="--kpi-color:${c.color}">
+      <div class="lbl">${c.lbl}</div>
+      <div class="val">${c.val}</div>
+      <div class="sub">${c.sub}</div>
+    </div>`).join('');
+
+  const p = state.periodStart, q = state.periodEnd;
+  const fmt = d=>d ? `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}` : '—';
+  document.getElementById('famPeriodo').textContent = `Período: ${fmt(p)} – ${fmt(q)} (${state.periodDays} dias)`;
+}
+function stockHas(peca){ return state.stockRows.some(r=>r.pieza===peca); }
+
+function renderFamBlocks(){
+  const container = document.getElementById('famBlocks');
+  const familias = [...new Set(state.items.map(i=>i.familia))].sort((a,b)=>a.localeCompare(b,'pt'));
+  if(familias.length===0){ container.innerHTML = '<div class="empty-msg">Sem dados</div>'; return; }
+  const teto = state.filters.atn*3;
+
+  container.innerHTML = familias.map(fam=>{
+    const its = state.items.filter(i=>i.familia===fam);
+    const criticos = its.filter(i=>prioridadeDe(i)==='critico').length;
+    const atencao = its.filter(i=>prioridadeDe(i)==='atencao').length;
+    const ok = its.filter(i=>prioridadeDe(i)==='ok').length;
+    const sem = its.filter(i=>prioridadeDe(i)==='sem').length;
+    const saude = its.length ? its.reduce((a,i)=>a+scoreSaude(i,teto),0)/its.length : 0;
+    return `<div class="fam-block">
+      <div class="fam-head">
+        <div class="name">${escapeHtml(fam)}</div>
+        <div class="pct">${fmtInt(its.length)} itens · saúde ${fmtPct(saude)}</div>
+      </div>
+      <div class="fam-bar"><div class="fill" style="width:${saude}%"></div></div>
+      <div class="fam-stats">
+        <span class="fam-stat"><span class="dot" style="background:var(--red)"></span>${fmtInt(criticos)} crítico</span>
+        <span class="fam-stat"><span class="dot" style="background:var(--yellow)"></span>${fmtInt(atencao)} atenção</span>
+        <span class="fam-stat"><span class="dot" style="background:var(--green)"></span>${fmtInt(ok)} ok</span>
+        <span class="fam-stat"><span class="dot" style="background:var(--text-dim)"></span>${fmtInt(sem)} sem consumo</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCritical(){
+  const container = document.getElementById('criticalGrid');
+  const teto = state.filters.atn*3;
+  const piores = state.items
+    .filter(i=>i.cobertura!==null)
+    .slice()
+    .sort((a,b)=>a.cobertura-b.cobertura)
+    .slice(0,16);
+  if(piores.length===0){ container.innerHTML = '<div class="empty-msg">Nenhum item com consumo no período</div>'; return; }
+  container.innerHTML = piores.map(i=>{
+    const score = scoreSaude(i,teto);
+    const color = heatColor(score);
+    const label = i.estoque===0 ? 'Esgotado' : fmtDias(i.cobertura);
+    return `<div class="crit-card" style="--crit-color:${color}" title="${escapeHtml(i.descricao)}">
+      <div class="peca">${escapeHtml(i.peca)}</div>
+      <div class="desc">${escapeHtml(i.descricao)}</div>
+      <div class="val" style="color:${color}">${label}</div>
+      <div class="bar"><div class="f" style="width:${Math.max(4,score)}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  const tbody = document.getElementById('itemsTbody');
+  const rows = applyFilters(state.items).slice(0,400);
+  if(rows.length===0){
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">Nenhum item para os filtros atuais</td></tr>';
+    return;
+  }
+  const badge = {
+    critico: '<span class="status-pill status-critico">Crítico</span>',
+    atencao: '<span class="status-pill status-atencao">Atenção</span>',
+    ok: '<span class="status-pill status-ok">OK</span>',
+    sem: '<span class="status-pill status-sem">Sem consumo</span>',
+  };
+  tbody.innerHTML = rows.map(i=>{
+    const p = prioridadeDe(i);
+    return `<tr>
+      <td style="color:var(--text);font-weight:600;">${escapeHtml(i.peca)}</td>
+      <td style="font-family:var(--body);">${escapeHtml(i.descricao)}</td>
+      <td style="font-family:var(--body);color:var(--text-muted);">${escapeHtml(i.familia)}</td>
+      <td>${fmtDec(i.freqSemanal,1)}</td>
+      <td>${fmtDec(i.consumoDiario,1)}</td>
+      <td>${fmtInt(i.estoque)}</td>
+      <td>${fmtDias(i.cobertura)}</td>
+      <td>${badge[p]}</td>
+    </tr>`;
+  }).join('') + (state.items.length>400 && applyFilters(state.items).length>400
+    ? `<tr><td colspan="8" style="text-align:center;color:var(--text-dim);font-family:var(--body);">Mostrando 400 de ${fmtInt(applyFilters(state.items).length)} itens. Refine os filtros para ver mais.</td></tr>` : '');
+}
+
+/* ============================================================
+   EVENTOS DOS FILTROS
+   ============================================================ */
+document.getElementById('fSearch').addEventListener('input', e=>{ state.filters.search=e.target.value; renderTable(); });
+document.getElementById('fFamilia').addEventListener('change', e=>{ state.filters.familia=e.target.value; renderTable(); });
+document.getElementById('fPrioridade').addEventListener('change', e=>{ state.filters.prioridade=e.target.value; renderTable(); });
+document.getElementById('fOrdenar').addEventListener('change', e=>{ state.filters.ordenar=e.target.value; renderTable(); });
+document.getElementById('fCrit').addEventListener('input', e=>{
+  state.filters.crit = Math.max(0, toNum(e.target.value)); renderAll();
+});
+document.getElementById('fAtn').addEventListener('input', e=>{
+  state.filters.atn = Math.max(state.filters.crit+0.1, toNum(e.target.value)); renderAll();
+});
+document.getElementById('btnClear').addEventListener('click', ()=>{
+  state.filters.search=''; state.filters.familia=''; state.filters.prioridade=''; state.filters.ordenar='cobertura';
+  document.getElementById('fSearch').value='';
+  document.getElementById('fFamilia').value='';
+  document.getElementById('fPrioridade').value='';
+  document.getElementById('fOrdenar').value='cobertura';
+  renderTable();
+});
+
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
+document.getElementById('btnExportCsv').addEventListener('click', ()=>{
+  const rows = applyFilters(state.items);
+  const header = ['Peca','Descricao','Familia','Kanbans no periodo','Kanbans por semana','Consumo por dia','Estoque atual','Cobertura (dias)','Prioridade'];
+  const lines = [header.join(';')];
+  rows.forEach(i=>{
+    const p = prioridadeDe(i);
+    lines.push([i.peca, i.descricao, i.familia, i.qtdKanbans, fmtDec(i.freqSemanal,2).replace('.',','),
+      fmtDec(i.consumoDiario,2).replace('.',','), i.estoque, i.cobertura===null?'':fmtDec(i.cobertura,1).replace('.',','), p]
+      .map(v=>String(v??'').replace(/;/g,',')).join(';'));
+  });
+  const blob = new Blob(['\uFEFF'+lines.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='reapro_estanteria.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   ABAS
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click', ()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x===t));
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active', p.id===t.dataset.tab));
+}));
+
+/* ============================================================
+   ABA: DESCER PALETES (aéreo -> picking)
+   Endereço: 1º caractere = zona · rua = posição configurável
+   (ou 2º segmento se houver separadores) · 2 últimos caracteres = nível
+   ============================================================ */
+const descer = { rows:[], cfg:{} };
+
+function parseRuas(str){
+  const set = new Set();
+  String(str||'').split(/[,;\s]+/).forEach(tok=>{
+    if(!tok) return;
+    const m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(m){ for(let n=parseInt(m[1],10); n<=parseInt(m[2],10); n++) set.add(n); }
+    else if(/^\d+$/.test(tok)) set.add(parseInt(tok,10));
+  });
+  return set;
+}
+function readDescerCfg(){
+  const g = id=>document.getElementById(id).value;
+  const destino = parseRuas(g('dRuasDest'));
+  const extra = parseRuas(g('dRuasExtra'));
+  const cobMin = Math.max(0, toNum(g('dCobMin')));
+  return {
+    zona: String(g('dZona')).trim().toUpperCase(),
+    destino, analise: new Set([...destino, ...extra]),
+    nivelMax: Math.max(0, parseInt(g('dNivelMax'),10)||0),
+    cobMin, meta: Math.max(cobMin, toNum(g('dMeta'))||cobMin),
+    ruaIni: Math.max(1, parseInt(g('dRuaIni'),10)||2),
+    ruaLen: Math.max(1, parseInt(g('dRuaLen'),10)||2),
+    search: g('dSearch').trim().toLowerCase(),
+  };
+}
+function parseEndereco(raw, cfg){
+  const s = String(raw||'').trim();
+  if(!s) return null;
+  const clean = s.replace(/[^A-Za-z0-9]/g,'');
+  if(clean.length<3) return null;
+  const nivel = parseInt(clean.slice(-2),10);
+  if(isNaN(nivel)) return null;
+  let rua, pos = null, fmt = null;
+  if(/[^A-Za-z0-9]/.test(s)){
+    const parts = s.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    rua = parseInt(parts[1],10);
+    if(parts.length===4){
+      pos = parseInt(parts[2],10);
+      fmt = { sep:s.match(/[^A-Za-z0-9]/)[0], zonaStr:parts[0], ruaLen:parts[1].length, posLen:parts[2].length };
+      if(isNaN(pos)) { pos = null; fmt = null; }
+    }
+  } else {
+    rua = parseInt(clean.substr(cfg.ruaIni-1, cfg.ruaLen),10);
+  }
+  return { zona: clean[0].toUpperCase(), rua: isNaN(rua)?null:rua, nivel, pos, fmt };
+}
+
+function populatePaleteCols(){
+  const sel = document.getElementById('dPaleteCol');
+  const cols = state.stockCols || [];
+  const amostra = state.stockRows.length ? state.stockRows[0].raw : {};
+  sel.innerHTML = '<option value="">(nenhuma — cada linha = 1 palete)</option>' + cols.map(c=>{
+    const ex = String(amostra[c]||'').slice(0,26);
+    return `<option value="${escapeHtml(c)}">${escapeHtml(c)}${ex?' — ex.: '+escapeHtml(ex):''}</option>`;
+  }).join('');
+  const porNome = cols.find(c=>/(madre|mae|palet|pallet|lpn|matricula|contenedor|padre|parent|sscc|etiqueta|etiq|label)/.test(c));
+  const porValor = cols.find(c=>/^M-?\d+(\s+-\s+M-?\d+)?$/i.test(String(amostra[c]||'').trim()));
+  const guess = cols.includes('label') ? 'label' : (porValor || porNome);
+  sel.value = guess || '';
+}
+// etiqueta mãe: se o campo vier como "M-0000 - M0001", vale o que está antes do " - "
+function maeDe(r){
+  const col = document.getElementById('dPaleteCol').value;
+  if(!col) return null;
+  const v = String((r.raw||{})[col]||'').trim();
+  if(!v) return null;
+  return v.split(/\s+[-–]\s+/)[0].trim();
+}
+
+function computeDescer(){
+  const cfg = readDescerCfg();
+  descer.cfg = cfg;
+  const byPeca = {};
+  let exemplo = null;
+  const palMap = {};
+  const occStock = new Set();
+  state.stockRows.forEach((r,idx)=>{
+    if(!(r.qtd>0)) return;
+    occStock.add(keyEnd(r.ubicacion));
+    const e = parseEndereco(r.ubicacion, cfg);
+    if(!e) return;
+    if(!exemplo && e.zona===cfg.zona && e.rua!==null) exemplo = { raw:r.ubicacion, ...e };
+    if(e.zona!==cfg.zona || e.rua===null || !cfg.analise.has(e.rua)) return;
+    const mae = maeDe(r);
+    // palete = etiqueta mãe + peça + endereço (sem coluna escolhida: cada linha vira 1 palete)
+    const key = (mae ? mae : '#'+idx) + '|' + r.pieza + '|' + r.ubicacion;
+    const pal = palMap[key] = palMap[key] || { pieza:r.pieza, end:r.ubicacion, qtd:0, caixas:0, nivel:e.nivel, rua:e.rua, pos:e.pos||0, mae:mae, dataMin:null, dataMax:null };
+    pal.qtd += r.qtd;
+    (pal.cx = pal.cx || new Set()).add((r.raw && r.raw.labelorigin) ? r.raw.labelorigin : '#'+idx);
+    const dt = parseDataRef(r.raw && r.raw.referencedate);
+    if(dt!=null){ pal.dataMin = (pal.dataMin==null || dt<pal.dataMin) ? dt : pal.dataMin; pal.dataMax = (pal.dataMax==null || dt>pal.dataMax) ? dt : pal.dataMax; }
+  });
+  Object.values(palMap).forEach(pal=>{
+    pal.caixas = pal.cx ? pal.cx.size : 1;
+    const g = byPeca[pal.pieza] = byPeca[pal.pieza] || { pick:[], aereo:[] };
+    (pal.nivel<=cfg.nivelMax ? g.pick : g.aereo).push(pal);
+  });
+  descer.exemplo = exemplo;
+  descer.byPeca = byPeca;
+  // posições VAZIAS (Label em branco no Estoque por localização) da zona e das ruas de destino.
+  // Nunca entra posição que já tenha caixas (nem no arquivo de localização, nem no estoque).
+  const vp = [], va = [], vistos = new Set();
+  (state.locVazios || []).forEach(raw=>{
+    const k = keyEnd(raw);
+    if(vistos.has(k) || occStock.has(k)) return;
+    vistos.add(k);
+    const e = parseEndereco(raw, cfg);
+    if(!e || e.zona!==cfg.zona || e.rua===null || !cfg.destino.has(e.rua)) return;
+    (e.nivel<=cfg.nivelMax ? vp : va).push({ end:raw, rua:e.rua, pos:e.pos||0, nivel:e.nivel, usada:false });
+  });
+  descer.vagasPicking = vp; descer.vagasAereo = va;
+
+  const rows = [];
+  state.items.forEach(it=>{
+    if(!(it.consumoDiario>0)) return;
+    const g = byPeca[it.peca] || { pick:[], aereo:[] };
+    const pickQtd = g.pick.reduce((a,p)=>a+p.qtd,0);
+    const cobPick = pickQtd/it.consumoDiario;
+    if(cobPick >= cfg.cobMin) return;
+
+    const aereoQtd = g.aereo.reduce((a,p)=>a+p.qtd,0);
+    const need = Math.max(0, cfg.meta*it.consumoDiario - pickQtd);
+    // FIFO: paletes mais antigos do aéreo (REFERENCEDATE) descem primeiro; sem data, entram por último
+    const semData = Infinity;
+    const ordem = g.aereo.slice().sort((a,b)=> (a.dataMin??semData)-(b.dataMin??semData) || a.nivel-b.nivel || b.qtd-a.qtd);
+    const escolhidos = []; let acum = 0;
+    for(const p of ordem){
+      if(escolhidos.length>0 && acum>=need) break;
+      escolhidos.push(p); acum += p.qtd;
+    }
+    const destEnds = [...new Set(g.pick.filter(p=>cfg.destino.has(p.rua)).map(p=>p.end))];
+    const foraFaixa = [...new Set(g.pick.filter(p=>!cfg.destino.has(p.rua)).map(p=>p.end))];
+    rows.push({
+      peca:it.peca, descricao:it.descricao, familia:it.familia, consumoDiario:it.consumoDiario,
+      pickQtd, cobPick, aereoQtd, aereoPaletes:g.aereo.length,
+      escolhidos, qtdDescer:acum, cobApos:(pickQtd+acum)/it.consumoDiario,
+      destEnds, foraFaixa,
+      situacao: g.aereo.length===0 ? 'semaereo' : (pickQtd===0 ? 'esgot' : 'baixo'),
+    });
+  });
+  rows.sort((a,b)=>{
+    const sa = a.situacao==='semaereo'?1:0, sb = b.situacao==='semaereo'?1:0;
+    return sa-sb || a.cobPick-b.cobPick;
+  });
+  descer.rows = rows;
+  // destino de cada endereço de origem: 1 posição vazia de picking por palete, a mais próxima do picking atual da peça
+  rows.forEach(r=>{
+    r.grupos = agruparEnd(r.escolhidos);
+    const refs = (byPeca[r.peca] ? byPeca[r.peca].pick : []).map(p=>({ rua:p.rua, pos:p.pos||0 }));
+    r.grupos.forEach(gp=>{ gp.destinos = pegarVagas(vp, 1, refs); });
+  });
+}
+
+// escolhe n posições vazias ainda não usadas, priorizando a proximidade das referências (rua, posição)
+function pegarVagas(pool, n, refs){
+  const out = [];
+  for(let k=0;k<n;k++){
+    let best = -1, bs = Infinity;
+    for(let i=0;i<pool.length;i++){
+      const v = pool[i]; if(v.usada) continue;
+      let sc = refs.length ? Math.min(...refs.map(rf=>Math.abs(v.rua-rf.rua)*1000 + Math.abs(v.pos-rf.pos))) : v.rua*1000 + v.pos;
+      sc += v.nivel/100;
+      if(sc<bs){ bs = sc; best = i; }
+    }
+    if(best<0) break;
+    pool[best].usada = true; out.push(pool[best].end);
+  }
+  return out;
+}
+
+function descerFiltered(){
+  const s = descer.cfg.search;
+  return !s ? descer.rows : descer.rows.filter(r=>r.peca.toLowerCase().includes(s) || r.descricao.toLowerCase().includes(s));
+}
+// agrupa paletes do mesmo endereço em 1 linha (quantidade e caixas somadas)
+function agruparEnd(pals){
+  const m = new Map();
+  pals.forEach(p=>{
+    const g = m.get(p.end) || { end:p.end, rua:p.rua, pos:p.pos, n:0, qtd:0, caixas:0, maes:[], pals:[], dataMin:null, dataMax:null };
+    g.pals.push(p); g.n++; g.qtd += p.qtd; g.caixas += p.caixas; if(p.mae) g.maes.push(p.mae);
+    if(p.dataMin!=null) g.dataMin = (g.dataMin==null || p.dataMin<g.dataMin) ? p.dataMin : g.dataMin;
+    if(p.dataMax!=null) g.dataMax = (g.dataMax==null || p.dataMax>g.dataMax) ? p.dataMax : g.dataMax;
+    m.set(p.end, g);
+  });
+  return [...m.values()].map(g=>({ ...g, mae: g.n>1 ? g.n+' pal.' : (g.maes[0]||null) }));
+}
+// uma linha por endereço de origem; itens sem palete no aéreo ficam com 1 linha só
+function linhasDescer(){
+  const out = [];
+  descerFiltered().forEach(r=>{
+    if(!r.escolhidos.length){ out.push({r, p:null, i:0, dest:null}); return; }
+    r.grupos.forEach((p,i)=>out.push({ r, p, i, dest: p.destinos.length ? p.destinos : null }));
+  });
+  return out;
+}
+// célula "Levar para": posições vazias; avisa quando não há posição vazia para todos os paletes
+function celulaDest(destinos){
+  if(!state.locLoaded) return '<td class="dest-miss">Importe o Estoque por localização</td>';
+  if(!destinos.length) return '<td class="dest-miss">Sem posição vazia de destino</td>';
+  return `<td style="color:var(--text);font-weight:600;white-space:nowrap;">${escapeHtml(destinos[0])}</td>`;
+}
+function destinoCell(l){
+  if(!l.p) return '<td>—</td>';
+  return celulaDest(l.p.destinos);
+}
+function vagasNota(){
+  if(!state.locLoaded) return '<br><b>Estoque por localização não importado</b> — sem ele não há como saber quais posições estão vazias. Importe o arquivo para ver os endereços de destino.';
+  return `<br>Destino = somente posições <b>vazias</b> (Label em branco no Estoque por localização) nas ruas de destino: <b>${fmtInt((descer.vagasPicking||[]).length)}</b> vagas de picking (níveis até ${String(descer.cfg.nivelMax).padStart(2,'0')}) e <b>${fmtInt((descer.vagasAereo||[]).length)}</b> de aéreo. Cada endereço de origem vai inteiro (todas as caixas somadas) para uma posição vazia, a mais próxima da peça.<br>Prioridade FIFO: no <b>Descer</b>, os paletes do aéreo mais antigos (REFERENCEDATE) descem primeiro; no <b>Subir</b>, os endereços com os paletes mais novos do picking sobem primeiro. Paletes sem REFERENCEDATE entram por último em cada caso.`;
+}
+
+function renderDescer(){
+  const note = document.getElementById('addrNote');
+  const tbody = document.getElementById('descerTbody');
+  const kpis = document.getElementById('descerKpis');
+  const badge = document.getElementById('tabBadge');
+
+  if(state.stockRows.length===0){
+    note.style.display='none'; kpis.innerHTML=''; badge.textContent='';
+    renderSubir();
+    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">Importe o Estoque (.csv) para ver os paletes a descer</td></tr>';
+    return;
+  }
+  computeDescer();
+  const cfg = descer.cfg;
+  note.style.display='block';
+  const ex = descer.exemplo;
+  const fmtSet = st=>[...st].sort((a,b)=>a-b).join(', ');
+  note.innerHTML = (ex
+    ? `Exemplo lido do estoque: <b>${escapeHtml(ex.raw)}</b> → zona <b>${escapeHtml(ex.zona)}</b> · rua <b>${ex.rua}</b> · nível <b>${String(ex.nivel).padStart(2,'0')}</b> (${ex.nivel<=cfg.nivelMax?'picking':'aéreo'}). `
+    : `<b>Nenhum endereço da zona ${escapeHtml(cfg.zona)} nas ruas analisadas foi encontrado</b> — confira zona, ruas e a posição da rua. `)
+    + `<br>Picking = níveis 00–${String(cfg.nivelMax).padStart(2,'0')} · Aéreo = acima de ${String(cfg.nivelMax).padStart(2,'0')} · Destino das transferências: ruas <b>${fmtSet(cfg.destino)||'—'}</b> · Ruas consideradas só na análise: <b>${fmtSet(new Set([...cfg.analise].filter(r=>!cfg.destino.has(r))))||'—'}</b>. ` + (document.getElementById('dPaleteCol').value
+      ? `<br>Palete = etiqueta mãe (coluna <b>${escapeHtml(document.getElementById('dPaleteCol').value)}</b>); a quantidade é a soma das etiquetas de caixa.`
+      : `<br><b>Nenhuma coluna de palete selecionada</b> — cada linha do estoque está sendo contada como 1 palete. Escolha a coluna da etiqueta mãe.`);
+  note.innerHTML += vagasNota();
+
+  const todas = descer.rows;
+  const acionaveis = todas.filter(r=>r.situacao!=='semaereo');
+  const paletes = acionaveis.reduce((a,r)=>a+r.escolhidos.length,0);
+  const esgot = todas.filter(r=>r.situacao==='esgot').length;
+  const semAereo = todas.filter(r=>r.situacao==='semaereo').length;
+  const semDest = acionaveis.reduce((a,r)=>a+r.grupos.filter(gp=>!gp.destinos.length).length,0);
+  badge.textContent = acionaveis.length ? acionaveis.length : '';
+
+  const cards = [
+    {lbl:'Itens a abastecer', val:fmtInt(acionaveis.length), sub:`cobertura no picking < ${fmtDec(cfg.cobMin,0)} dias, com palete no aéreo`, color:'var(--amber)'},
+    {lbl:'Paletes a descer', val:fmtInt(paletes), sub:`${fmtInt(semDest)} endereços sem posição vazia de destino`, color:'var(--blue)'},
+    {lbl:'Picking esgotado', val:fmtInt(esgot), sub:'consumo ativo, picking zerado e palete no aéreo', color:'var(--red)'},
+    {lbl:'Sem palete no aéreo', val:fmtInt(semAereo), sub:'picking baixo e nada para descer (zona/ruas analisadas)', color:'var(--text-dim)'},
+  ];
+  kpis.innerHTML = cards.map(c=>`
+    <div class="kpi" style="--kpi-color:${c.color}">
+      <div class="lbl">${c.lbl}</div><div class="val">${c.val}</div><div class="sub">${c.sub}</div>
+    </div>`).join('');
+
+  renderSubir();
+  const linhas = linhasDescer();
+  if(linhas.length===0){
+    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">Nenhum item precisa de reabastecimento do aéreo com esses parâmetros</td></tr>';
+    return;
+  }
+  tbody.innerHTML = linhas.map(l=>rowDescerHtml(l,false)).join('');
+}
+
+// full=true: todas as colunas preenchidas em todas as linhas (usado na impressão ordenada)
+function rowDescerHtml(l, full){
+  const pill = {
+    esgot:'<span class="status-pill status-esgot">Picking esgotado</span>',
+    baixo:'<span class="status-pill status-baixo">Cobertura baixa</span>',
+    semaereo:'<span class="status-pill status-semaereo">Sem palete no aéreo</span>',
+  };
+  const r = l.r, p = l.p, first = full || l.i===0;
+  const cls = [(!full && l.i===0)?'grp-first':'', !p?'sem-pal':'', (p && !l.dest)?'sem-dest':''].join(' ').trim();
+  const itemCols = first ? `
+    <td>${fmtDec(r.consumoDiario,1)}</td>
+    <td>${fmtInt(r.pickQtd)}</td>
+    <td>${r.pickQtd===0?'0 d':fmtDias(r.cobPick)}</td>
+    <td>${fmtInt(r.aereoQtd)} <span style="color:var(--text-dim)">(${r.aereoPaletes} pal.)</span></td>` : '<td></td><td></td><td></td><td></td>';
+  return `<tr class="${cls}">
+    <td style="color:var(--text);font-weight:600;">${escapeHtml(r.peca)}</td>
+    <td style="font-family:var(--body);">${escapeHtml(r.descricao)}</td>
+    ${itemCols}
+    <td style="color:var(--text);font-weight:600;white-space:nowrap;">${p?escapeHtml(p.end):'—'}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${p?fmtData(p.dataMin):'—'}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${p&&p.mae?escapeHtml(p.mae):'—'}</td>
+    <td class="num-strong">${p?fmtInt(p.qtd):'—'}</td>
+    <td>${p?p.caixas:'—'}</td>
+    ${destinoCell(l)}
+    <td>${first && r.escolhidos.length ? fmtDias(r.cobApos) : ''}</td>
+    <td>${pill[r.situacao]}</td>
+  </tr>`;
+}
+
+['dSearch','dZona','dRuasDest','dRuasExtra','dNivelMax','dCobMin','dMeta','dRuaIni','dRuaLen','dPaleteCol']
+  .forEach(id=>document.getElementById(id).addEventListener('input', renderDescer));
+
+document.getElementById('btnExportDescer').addEventListener('click', ()=>{
+  const linhas = linhasDescer();
+  if(!linhas.length){ alert('Nada para exportar. Importe o Estoque e ajuste os parâmetros.'); return; }
+  const header = ['Peca','Descricao','Consumo por dia','Estoque picking','Cobertura picking (dias)','Estoque aereo','Retirar de (aereo)','Data ref.','Palete (mae)','Qtd','Caixas','Levar para (picking)','Cobertura apos (dias)','Situacao'];
+  const nome = {esgot:'Picking esgotado', baixo:'Cobertura baixa', semaereo:'Sem palete no aereo'};
+  const out = [header.join(';')];
+  linhas.forEach(l=>{
+    const r=l.r, p=l.p;
+    out.push([r.peca, r.descricao, fmtDec(r.consumoDiario,2), r.pickQtd, fmtDec(r.cobPick,1), r.aereoQtd,
+      p?p.end:'', p?fmtData(p.dataMin):'', p?(p.mae||''):'', p?p.qtd:'', p?p.caixas:'', p?(l.dest?l.dest[0]:'SEM POSICAO VAZIA DE DESTINO'):'',
+      (l.i===0 && r.escolhidos.length)?fmtDec(r.cobApos,1):'', nome[r.situacao]]
+      .map(v=>String(v??'').replace(/;/g,',')).join(';'));
+  });
+  const blob = new Blob(['\uFEFF'+out.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='descer_paletes_picking.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// Impressão: só a lista; itens sem palete a mover nunca saem; "sem posição de destino" conforme o checkbox
+function imprimirLista(linhas, checkId, headId, titulo, tbodyId, rowFn, restaurar){
+  linhas = linhas.filter(l=>l.p);
+  if(!linhas.length){ alert('Nada para imprimir. Importe o Estoque e ajuste os parâmetros.'); return; }
+  const incluir = document.getElementById(checkId).checked;
+  const qtd = linhas.filter(l=>incluir || l.dest).length;
+  // folha ordenada pelo endereço de origem (crescente), com todas as colunas preenchidas em cada linha
+  const ordenadas = linhas.slice().sort((a,b)=>
+    String(a.p.end).localeCompare(String(b.p.end),'pt-BR',{numeric:true}) || String(a.r.peca).localeCompare(String(b.r.peca),'pt-BR',{numeric:true}));
+  document.getElementById(tbodyId).innerHTML = ordenadas.map(l=>rowFn(l,true)).join('');
+  document.getElementById(headId).innerHTML =
+    `<b>${titulo}</b> · ${new Date().toLocaleString('pt-BR')} · ${qtd} endereço(s) · ordenado pelo endereço de origem`
+    + (incluir ? ' · inclui itens sem posição de destino' : ' · somente itens com posição de destino');
+  document.body.classList.add('printing');
+  document.body.classList.toggle('no-semdest', !incluir);
+  const fim = ()=>{
+    document.body.classList.remove('printing','no-semdest');
+    window.removeEventListener('afterprint', fim);
+    restaurar();
+  };
+  window.addEventListener('afterprint', fim);
+  window.print();
+}
+document.getElementById('btnPrintDescer').addEventListener('click', ()=>
+  imprimirLista(linhasDescer(), 'dPrintSemDest', 'printHead', 'Paletes para descer do aéreo ao picking', 'descerTbody', rowDescerHtml, renderDescer));
+
+/* ============================================================
+   ABA: SUBIR PALETES (picking -> aéreo)
+   Excesso: cobertura no picking acima do limite. Sobem paletes inteiros
+   enquanto o picking mantiver a cobertura desejada.
+   ============================================================ */
+const subir = { rows:[], livresRestantes:0 };
+
+function computeSubir(){
+  const sMax = Math.max(1, toNum(document.getElementById('sMax').value) || 30);
+  const sKeep = Math.min(sMax, Math.max(1, toNum(document.getElementById('sKeep').value) || 28));
+  const excl = parseRuas(document.getElementById('sExcluir').value);
+  subir.excl = excl;
+  const rows = [];
+  state.items.forEach(it=>{
+    if(!(it.consumoDiario>0)) return;
+    const g0 = descer.byPeca[it.peca];
+    if(!g0) return;
+    // ruas excluídas saem da análise: não contam no picking, nem no aéreo, nem como origem
+    const g = { pick:g0.pick.filter(x=>!excl.has(x.rua)), aereo:g0.aereo.filter(x=>!excl.has(x.rua)) };
+    if(!g.pick.length) return;
+    const pickQtd = g.pick.reduce((a,p)=>a+p.qtd,0);
+    const cob = pickQtd/it.consumoDiario;
+    if(cob<=sMax) return;
+    const keepQty = sKeep*it.consumoDiario;
+    // endereços inteiros (todas as caixas do endereço sobem juntas), maiores primeiro, mantendo a cobertura desejada no picking
+    // FIFO: endereços com os paletes mais novos do picking (REFERENCEDATE) sobem primeiro; sem data, entram por último
+    const enderecos = agruparEnd(g.pick).sort((a,b)=> (b.dataMax??-Infinity)-(a.dataMax??-Infinity) || b.qtd-a.qtd);
+    let resto = pickQtd; const escolhidos = [];
+    for(const gp of enderecos){ if(resto-gp.qtd>=keepQty){ escolhidos.push(gp); resto -= gp.qtd; } }
+    if(!escolhidos.length) return;
+    rows.push({ peca:it.peca, descricao:it.descricao, consumoDiario:it.consumoDiario, pickQtd, cob,
+      aereoQtd:g.aereo.reduce((a,x)=>a+x.qtd,0), aereoPaletes:g.aereo.length,
+      grupos:escolhidos, sobem:escolhidos.flatMap(x=>x.pals), qtdSubir:pickQtd-resto, cobApos:resto/it.consumoDiario });
+  });
+  rows.sort((a,b)=>b.cob-a.cob);
+  // destinos: vagas livres do aéreo, usadas uma vez só, em ordem (nível, rua, posição)
+  const va = (descer.vagasAereo || []).filter(v=>!excl.has(v.rua)); va.forEach(v=>v.usada=false);
+  rows.forEach(r=>{
+    r.grupos.forEach(gp=>{ gp.destinos = pegarVagas(va, 1, [{ rua:gp.rua, pos:gp.pos||0 }]); });
+  });
+  subir.rows = rows;
+  subir.semVaga = rows.reduce((a,r)=>a+r.grupos.filter(gp=>!gp.destinos.length).length,0);
+}
+
+function subirFiltered(){
+  const q = document.getElementById('sSearch').value.trim().toLowerCase();
+  return !q ? subir.rows : subir.rows.filter(r=>r.peca.toLowerCase().includes(q) || r.descricao.toLowerCase().includes(q));
+}
+function linhasSubir(){
+  const out = [];
+  subirFiltered().forEach(r=>r.grupos.forEach((gp,i)=>out.push({ r, p:gp, i, dest: gp.destinos.length ? gp.destinos : null })));
+  return out;
+}
+
+function renderSubir(){
+  const tbody = document.getElementById('subirTbody');
+  const kpis = document.getElementById('subirKpis');
+  const note = document.getElementById('subirNote');
+  const badge = document.getElementById('tabBadgeSubir');
+  const vazio = msg=>{ tbody.innerHTML = `<tr><td colspan="14" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">${msg}</td></tr>`; };
+  if(state.stockRows.length===0 || !descer.byPeca){ note.style.display='none'; kpis.innerHTML=''; badge.textContent=''; vazio('Importe o Estoque (.csv) para ver os paletes a subir'); return; }
+  computeSubir();
+  note.style.display = 'block';
+  note.innerHTML = `Zona, ruas, nível de corte do picking e coluna do palete seguem os da aba <b>Descer paletes</b>.` + vagasNota() + (subir.excl.size ? `<br>Ruas excluídas da análise: <b>${[...subir.excl].sort((a,b)=>a-b).join(', ')}</b> (não são origem nem destino).` : '');
+
+  const linhas = linhasSubir();
+  const totPal = subir.rows.reduce((a,r)=>a+r.sobem.length,0);
+  const totEnd = subir.rows.reduce((a,r)=>a+r.grupos.length,0);
+  badge.textContent = subir.rows.length ? subir.rows.length : '';
+  const cards = [
+    {lbl:'Itens com excesso', val:fmtInt(subir.rows.length), sub:`cobertura no picking > ${fmtDec(toNum(document.getElementById('sMax').value)||30,0)} dias`, color:'var(--blue)'},
+    {lbl:'Paletes a subir', val:fmtInt(totPal), sub:`em ${fmtInt(totEnd)} endereços de picking`, color:'var(--amber)'},
+    {lbl:'Qtd a subir', val:fmtInt(subir.rows.reduce((a,r)=>a+r.qtdSubir,0)), sub:'unidades saindo do picking', color:'var(--green,#3FB68B)'},
+    {lbl:'Sem vaga no aéreo', val:fmtInt(subir.semVaga), sub:'endereços sem posição de destino vazia', color:'var(--red)'},
+  ];
+  kpis.innerHTML = cards.map(c=>`<div class="kpi" style="--kpi-color:${c.color}"><div class="lbl">${c.lbl}</div><div class="val">${c.val}</div><div class="sub">${c.sub}</div></div>`).join('');
+
+  if(!linhas.length){ vazio('Nenhum item com excesso no picking com esses parâmetros'); return; }
+  tbody.innerHTML = linhas.map(l=>rowSubirHtml(l,false)).join('');
+}
+
+function rowSubirHtml(l, full){
+  const r=l.r, gp=l.p, first = full || l.i===0;
+  const cls = [(!full && l.i===0)?'grp-first':'', !gp.destinos.length?'sem-dest':''].join(' ').trim();
+  const itemCols = first ? `
+    <td>${fmtDec(r.consumoDiario,1)}</td>
+    <td>${fmtInt(r.pickQtd)}</td>
+    <td>${r.cob>=999?'999+ d':fmtDias(r.cob)}</td>
+    <td>${fmtInt(r.aereoQtd)} <span style="color:var(--text-dim)">(${r.aereoPaletes} pal.)</span></td>` : '<td></td><td></td><td></td><td></td>';
+  return `<tr class="${cls}">
+    <td style="color:var(--text);font-weight:600;">${escapeHtml(r.peca)}</td>
+    <td style="font-family:var(--body);">${escapeHtml(r.descricao)}</td>
+    ${itemCols}
+    <td style="color:var(--text);font-weight:600;white-space:nowrap;">${escapeHtml(gp.end)}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${fmtData(gp.dataMax)}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${gp.mae?escapeHtml(gp.mae):'—'}</td>
+    <td class="num-strong">${fmtInt(gp.qtd)}</td>
+    <td>${gp.caixas}</td>
+    ${celulaDest(gp.destinos)}
+    <td>${first?fmtDias(r.cobApos):''}</td>
+    <td><span class="status-pill status-excesso">Excesso no picking</span></td>
+  </tr>`;
+}
+
+['sSearch','sMax','sKeep','sExcluir'].forEach(id=>document.getElementById(id).addEventListener('input', renderSubir));
+
+document.getElementById('btnPrintSubir').addEventListener('click', ()=>
+  imprimirLista(linhasSubir(), 'sPrintSemDest', 'printHeadSubir', 'Paletes para subir do picking ao aéreo', 'subirTbody', rowSubirHtml, renderSubir));
+
+document.getElementById('btnExportSubir').addEventListener('click', ()=>{
+  const linhas = linhasSubir();
+  if(!linhas.length){ alert('Nada para exportar. Importe o Estoque e ajuste os parâmetros.'); return; }
+  const out = [['Peca','Descricao','Consumo por dia','Estoque picking','Cobertura picking (dias)','Retirar de (picking)','Data ref.','Palete','Qtd','Caixas','Levar para (aereo)','Cobertura apos (dias)'].join(';')];
+  linhas.forEach(l=>{
+    const r=l.r, gp=l.p;
+    out.push([r.peca, r.descricao, fmtDec(r.consumoDiario,2), r.pickQtd, fmtDec(r.cob,1), gp.end, fmtData(gp.dataMax), gp.mae||'', gp.qtd, gp.caixas,
+      gp.destinos.length ? gp.destinos[0] : 'SEM POSICAO VAZIA DE DESTINO',
+      l.i===0?fmtDec(r.cobApos,1):''].map(v=>String(v??'').replace(/;/g,',')).join(';'));
+  });
+  const blob = new Blob(['\uFEFF'+out.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='subir_paletes_aereo.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   ABA: ITENS FRACIONADOS (estanteria -> embalagens fracionadas)
+   Critério contrário às outras abas: aqui sai a caixa cuja
+   quantidade NÃO é múltiplo exato do PCB do item (para mais ou
+   para menos). Origem: ruas 16-24 (todos os níveis) + rua 2 acima
+   de um nível de corte. Destino: posições vazias da rua 2 (níveis
+   baixos, a partir de uma posição) e das ruas 3 e 4.
+   ============================================================ */
+const frac = { rows:[] };
+
+function fracCfg(){
+  const g = id=>document.getElementById(id).value;
+  return {
+    zona: String(document.getElementById('dZona').value).trim().toUpperCase(),
+    origemRuas: parseRuas(g('fRuasOrigem')),
+    rua2NivelOrigem: Math.max(0, toNum(g('fRua2NivelOrigem'))||0),
+    rua2NivelDestino: Math.max(0, toNum(g('fRua2NivelDestino'))||0),
+    rua2PosDestino: Math.max(0, toNum(g('fRua2PosDestino'))||0),
+    rua34NivelDestino: Math.max(0, toNum(g('fRua34NivelDestino'))||0),
+    ruaIni: Math.max(1, parseInt(g('dRuaIni'),10)||2),
+    ruaLen: Math.max(1, parseInt(g('dRuaLen'),10)||2),
+    search: g('fSearch').trim().toLowerCase(),
+  };
+}
+function ehOrigemFrac(e, cfg){
+  if(e.zona!==cfg.zona || e.rua===null) return false;
+  if(cfg.origemRuas.has(e.rua)) return true;
+  if(e.rua===2 && e.nivel>cfg.rua2NivelOrigem) return true;
+  return false;
+}
+function ehDestinoFrac(e, cfg){
+  if(e.zona!==cfg.zona || e.rua===null) return false;
+  if(e.rua===2) return e.nivel<=cfg.rua2NivelDestino && (e.pos||0)>=cfg.rua2PosDestino;
+  if(e.rua===3 || e.rua===4) return e.nivel<=cfg.rua34NivelDestino;
+  return false;
+}
+
+function computeFrac(){
+  const cfg = fracCfg();
+  frac.cfg = cfg;
+  const pcbMap = state.pcbMap || {};
+  const grupos = {}; // peça -> { descricao, pcb, enderecos:Map }
+  const semPCB = new Set();
+  state.stockRows.forEach((r,idx)=>{
+    if(!(r.qtd>0)) return;
+    const e = parseEndereco(r.ubicacion, cfg);
+    if(!e || !ehOrigemFrac(e, cfg)) return;
+    const pcb = pcbMap[r.pieza];
+    if(!(pcb>0)){ semPCB.add(r.pieza); return; }
+    const resto = Math.round((r.qtd % pcb) * 1000) / 1000;
+    if(resto===0) return; // quantidade múltipla do PCB: caixa completa, não fracionada
+    const g = grupos[r.pieza] = grupos[r.pieza] || { peca:r.pieza, descricao: r.descricao || r.pieza, pcb, ends:{} };
+    const mae = maeDe(r);
+    const key = (mae ? mae : '#'+idx) + '|' + r.ubicacion;
+    const cx = g.ends[key] = g.ends[key] || { end:r.ubicacion, qtd:0, caixas:0, rua:e.rua, pos:e.pos||0, nivel:e.nivel, mae, dataMin:null, dataMax:null };
+    cx.qtd += r.qtd;
+    (cx.cx = cx.cx || new Set()).add((r.raw && r.raw.labelorigin) ? r.raw.labelorigin : '#'+idx);
+    cx.caixas = cx.cx.size;
+    const dt = parseDataRef(r.raw && r.raw.referencedate);
+    if(dt!=null){ cx.dataMin = (cx.dataMin==null || dt<cx.dataMin) ? dt : cx.dataMin; cx.dataMax = (cx.dataMax==null || dt>cx.dataMax) ? dt : cx.dataMax; }
+  });
+
+  // vagas vazias de destino (rua 2 baixa + ruas 3 e 4)
+  const vf = [];
+  const vistos = new Set();
+  (state.locVazios || []).forEach(raw=>{
+    const k = keyEnd(raw);
+    if(vistos.has(k)) return;
+    vistos.add(k);
+    const e = parseEndereco(raw, cfg);
+    if(!e || !ehDestinoFrac(e, cfg)) return;
+    vf.push({ end:raw, rua:e.rua, pos:e.pos||0, nivel:e.nivel, usada:false });
+  });
+  frac.vagas = vf;
+
+  const rows = Object.values(grupos).map(g=>{
+    // FIFO: mais antigo primeiro (mesma lógica de "retirada" da aba Descer)
+    const enderecos = Object.values(g.ends).sort((a,b)=> (a.dataMin??Infinity)-(b.dataMin??Infinity));
+    enderecos.forEach(cx=>{ cx.destinos = pegarVagas(vf, 1, [{ rua:cx.rua, pos:cx.pos }]); });
+    return { peca:g.peca, descricao:g.descricao, pcb:g.pcb, enderecos,
+      totCx: enderecos.reduce((a,c)=>a+c.caixas,0), totQtd: enderecos.reduce((a,c)=>a+c.qtd,0) };
+  });
+  rows.sort((a,b)=> b.totCx-a.totCx || a.peca.localeCompare(b.peca,'pt-BR',{numeric:true}));
+  frac.rows = rows;
+  frac.semPCB = [...semPCB];
+}
+
+function fracFiltered(){
+  const s = frac.cfg.search;
+  return !s ? frac.rows : frac.rows.filter(r=>r.peca.toLowerCase().includes(s) || r.descricao.toLowerCase().includes(s));
+}
+function linhasFrac(){
+  const out = [];
+  fracFiltered().forEach(r=>r.enderecos.forEach((cx,i)=>out.push({ r, p:cx, i, dest: cx.destinos.length ? cx.destinos : null })));
+  return out;
+}
+
+function rowFracHtml(l, full){
+  const r = l.r, cx = l.p, first = full || l.i===0;
+  const cls = [(!full && l.i===0)?'grp-first':'', !cx.destinos.length?'sem-dest':''].join(' ').trim();
+  const itemCols = first ? `<td>${fmtDec(r.pcb,0)}</td>` : '<td></td>';
+  return `<tr class="${cls}">
+    <td style="color:var(--text);font-weight:600;">${escapeHtml(r.peca)}</td>
+    <td style="font-family:var(--body);">${escapeHtml(r.descricao)}</td>
+    ${itemCols}
+    <td style="color:var(--text);font-weight:600;white-space:nowrap;">${escapeHtml(cx.end)}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${fmtData(cx.dataMin)}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${cx.mae?escapeHtml(cx.mae):'—'}</td>
+    <td class="num-strong">${fmtInt(cx.qtd)} <span style="color:var(--text-dim);font-weight:500;font-size:11px;">(padrão ${fmtDec(r.pcb,0)})</span></td>
+    <td>${cx.caixas}</td>
+    ${celulaDest(cx.destinos)}
+    <td><span class="status-pill status-frac">Fracionado</span></td>
+  </tr>`;
+}
+
+function renderFrac(){
+  const tbody = document.getElementById('fracTbody');
+  const kpis = document.getElementById('fracKpis');
+  const note = document.getElementById('fracNote');
+  const badge = document.getElementById('tabBadgeFrac');
+  const vazio = msg=>{ tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">${msg}</td></tr>`; };
+  if(state.stockRows.length===0){ note.style.display='none'; kpis.innerHTML=''; badge.textContent=''; vazio('Importe o Estoque (.csv) para ver os itens fracionados'); return; }
+  if(!state.pcbLoaded){ note.style.display='none'; kpis.innerHTML=''; badge.textContent=''; vazio('Importe o arquivo de Peças / PCB (.csv) para calcular o fracionamento'); return; }
+  computeFrac();
+  note.style.display='block';
+  note.innerHTML = `Origem: ruas <b>${[...frac.cfg.origemRuas].sort((a,b)=>a-b).join(', ')||'—'}</b> (todos os níveis) e rua <b>2</b> acima do nível <b>${String(frac.cfg.rua2NivelOrigem).padStart(2,'0')}</b>, zona <b>${escapeHtml(frac.cfg.zona)}</b>. Critério: quantidade da caixa não é múltiplo exato do PCB do item (para mais ou para menos).`
+    + (state.locLoaded
+        ? `<br>Destino = posições <b>vazias</b> nas ruas de embalagens fracionadas: rua 2 (nível até ${String(frac.cfg.rua2NivelDestino).padStart(2,'0')}, a partir da posição ${frac.cfg.rua2PosDestino}) e ruas 3 e 4 (nível até ${String(frac.cfg.rua34NivelDestino).padStart(2,'0')}) — <b>${fmtInt((frac.vagas||[]).length)}</b> vagas encontradas.`
+        : `<br><b>Estoque por localização não importado</b> — sem ele não há como saber quais posições de fracionados estão vazias.`)
+    + (frac.semPCB.length ? `<br><span style="color:var(--yellow)">${fmtInt(frac.semPCB.length)} peça(s) nas ruas de origem sem PCB cadastrado no arquivo de Peças, por isso não entraram na análise.</span>` : '');
+
+  const linhas = linhasFrac();
+  const totCx = frac.rows.reduce((a,r)=>a+r.totCx,0);
+  const totEnd = frac.rows.reduce((a,r)=>a+r.enderecos.length,0);
+  const semDest = frac.rows.reduce((a,r)=>a+r.enderecos.filter(c=>!c.destinos.length).length,0);
+  badge.textContent = frac.rows.length ? frac.rows.length : '';
+  const cards = [
+    {lbl:'Itens fracionados', val:fmtInt(frac.rows.length), sub:'peças com pelo menos 1 caixa fora do padrão do PCB', color:'var(--purple)'},
+    {lbl:'Endereços a esvaziar', val:fmtInt(totEnd), sub:`${fmtInt(totCx)} caixa(s) fracionada(s) no total`, color:'var(--amber)'},
+    {lbl:'Sem posição de destino', val:fmtInt(semDest), sub:'endereços sem vaga vazia nas ruas de fracionados', color:'var(--red)'},
+    {lbl:'Peças sem PCB', val:fmtInt(frac.semPCB.length), sub:'não entraram na análise por falta de PCB cadastrado', color:'var(--text-dim)'},
+  ];
+  kpis.innerHTML = cards.map(c=>`<div class="kpi" style="--kpi-color:${c.color}"><div class="lbl">${c.lbl}</div><div class="val">${c.val}</div><div class="sub">${c.sub}</div></div>`).join('');
+
+  if(!linhas.length){ vazio('Nenhuma caixa fracionada encontrada com esses parâmetros'); return; }
+  tbody.innerHTML = linhas.map(l=>rowFracHtml(l,false)).join('');
+}
+
+['fSearch','fRuasOrigem','fRua2NivelOrigem','fRua2NivelDestino','fRua2PosDestino','fRua34NivelDestino']
+  .forEach(id=>document.getElementById(id).addEventListener('input', renderFrac));
+
+document.getElementById('btnPrintFrac').addEventListener('click', ()=>
+  imprimirLista(linhasFrac(), 'fPrintSemDest', 'printHeadFrac', 'Caixas fracionadas para embalagens fracionadas', 'fracTbody', rowFracHtml, renderFrac));
+
+document.getElementById('btnExportFrac').addEventListener('click', ()=>{
+  const linhas = linhasFrac();
+  if(!linhas.length){ alert('Nada para exportar. Importe o Estoque, a Localização e o arquivo de Peças, e ajuste os parâmetros.'); return; }
+  const out = [['Peca','Descricao','PCB','Retirar de (estanteria)','Data ref.','Palete','Qtd','Caixas fracionadas','Levar para (fracionados)'].join(';')];
+  linhas.forEach(l=>{
+    const r=l.r, cx=l.p;
+    out.push([r.peca, r.descricao, r.pcb, cx.end, fmtData(cx.dataMin), cx.mae||'', cx.qtd, cx.caixas,
+      cx.destinos.length ? cx.destinos[0] : 'SEM POSICAO VAZIA DE DESTINO']
+      .map(v=>String(v??'').replace(/;/g,',')).join(';'));
+  });
+  const blob = new Blob(['\uFEFF'+out.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='itens_fracionados.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   ABA: ETIQUETAS DIVERGENTES — posições com mais de uma etiqueta
+   mãe (Label). Usa só o Estoque importado na 1ª tela. Mesmos
+   critérios de rua/nível de origem da aba Itens fracionados
+   (ruas 16-24 + rua 2 acima do nível de corte), mesma zona.
+   ============================================================ */
+const diverg = { rows:[] };
+
+function computeDiverg(){
+  const cfg = fracCfg(); // reaproveita zona, ruas de origem e nível de corte da rua 2
+  diverg.cfg = cfg;
+  const ends = {}; // endereço -> { end, maes: Map(mae|peca -> {mae,peca,qtd,caixas(Set),dataMin}) }
+  state.stockRows.forEach(r=>{
+    if(!(r.qtd>0)) return;
+    const e = parseEndereco(r.ubicacion, cfg);
+    if(!e || !ehOrigemFrac(e, cfg)) return;
+    const mae = maeDe(r);
+    if(!mae) return; // sem etiqueta mãe identificada, não dá para avaliar divergência
+    const k = keyEnd(r.ubicacion);
+    const g = ends[k] = ends[k] || { end:r.ubicacion, maes:{} };
+    const mk = mae + '|' + r.pieza;
+    const m = g.maes[mk] = g.maes[mk] || { mae, peca:r.pieza, qtd:0, dataMin:null };
+    m.qtd += r.qtd;
+    (m.cx = m.cx || new Set()).add((r.raw && r.raw.labelorigin) ? r.raw.labelorigin : mae);
+    m.caixas = m.cx.size;
+    const dt = parseDataRef(r.raw && r.raw.referencedate);
+    if(dt!=null) m.dataMin = (m.dataMin==null || dt<m.dataMin) ? dt : m.dataMin;
+  });
+
+  // agrupa tudo por endereço: 1 linha por posição, com os totais
+  const rows = Object.values(ends).map(g=>{
+    const maes = Object.values(g.maes);
+    const distintas = new Set(maes.map(m=>m.mae));
+    const pecas = [...new Set(maes.map(m=>m.peca))];
+    return {
+      end: g.end,
+      maes,
+      nDistintas: distintas.size,
+      pecas,
+      qtd: maes.reduce((a,m)=>a+m.qtd,0),
+      caixas: maes.reduce((a,m)=>a+m.caixas,0),
+      dataMin: maes.reduce((min,m)=> m.dataMin!=null && (min==null||m.dataMin<min) ? m.dataMin : min, null),
+    };
+  }).filter(r=>r.nDistintas>1);
+  rows.sort((a,b)=> b.nDistintas-a.nDistintas || a.end.localeCompare(b.end,'pt-BR',{numeric:true}));
+  diverg.rows = rows;
+}
+
+function divergFiltered(){
+  const s = document.getElementById('dgSearch').value.trim().toLowerCase();
+  if(!s) return diverg.rows;
+  return diverg.rows.filter(r => r.end.toLowerCase().includes(s)
+    || r.pecas.some(p=>p.toLowerCase().includes(s))
+    || r.maes.some(m=>m.mae.toLowerCase().includes(s)));
+}
+
+function pecasCell(r){
+  if(r.pecas.length===1) return escapeHtml(r.pecas[0]);
+  const show = r.pecas.slice(0,3).map(escapeHtml).join(', ');
+  return r.pecas.length>3 ? `${show} <span style="color:var(--text-dim)">+${r.pecas.length-3}</span>` : show;
+}
+
+function rowDivergHtml(r){
+  return `<tr>
+    <td style="color:var(--text);font-weight:600;white-space:nowrap;">${escapeHtml(r.end)}</td>
+    <td class="num-strong">${r.nDistintas} etiquetas</td>
+    <td style="color:var(--text);font-weight:600;">${pecasCell(r)}</td>
+    <td>${fmtInt(r.qtd)}</td>
+    <td>${r.caixas}</td>
+    <td style="color:var(--text-muted);white-space:nowrap;">${fmtData(r.dataMin)}</td>
+    <td><span class="status-pill status-diverg">Etiquetas divergentes</span></td>
+  </tr>`;
+}
+
+function renderDiverg(){
+  const tbody = document.getElementById('divergTbody');
+  const kpis = document.getElementById('divergKpis');
+  const note = document.getElementById('divergNote');
+  const badge = document.getElementById('tabBadgeDiverg');
+  const vazio = msg=>{ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);font-family:var(--body);padding:26px;">${msg}</td></tr>`; };
+  if(state.stockRows.length===0){ note.style.display='none'; kpis.innerHTML=''; badge.textContent=''; vazio('Importe o Estoque (.csv) para conferir as etiquetas'); return; }
+  computeDiverg();
+  const cfg = diverg.cfg;
+  note.style.display='block';
+  note.innerHTML = `Mesmos critérios de origem da aba <b>Itens fracionados</b>: ruas <b>${[...cfg.origemRuas].sort((a,b)=>a-b).join(', ')||'—'}</b> (todos os níveis) e rua <b>2</b> acima do nível <b>${String(cfg.rua2NivelOrigem).padStart(2,'0')}</b>, zona <b>${escapeHtml(cfg.zona)}</b>. Coluna de etiqueta mãe: <b>${escapeHtml(document.getElementById('dPaleteCol').value || '(nenhuma selecionada)')}</b>, definida na aba Descer paletes.`;
+
+  const linhas = divergFiltered();
+  const totMaes = diverg.rows.reduce((a,r)=>a+r.nDistintas,0);
+  const pecasEnvolvidas = new Set(); diverg.rows.forEach(r=>r.pecas.forEach(p=>pecasEnvolvidas.add(p)));
+  badge.textContent = diverg.rows.length ? diverg.rows.length : '';
+  const cards = [
+    {lbl:'Posições com divergência', val:fmtInt(diverg.rows.length), sub:'endereços com mais de 1 etiqueta mãe', color:'var(--red)'},
+    {lbl:'Etiquetas mãe nessas posições', val:fmtInt(totMaes), sub:'total de etiquetas distintas envolvidas', color:'var(--amber)'},
+    {lbl:'Peças envolvidas', val:fmtInt(pecasEnvolvidas.size), sub:'peças diferentes presentes nessas posições', color:'var(--blue)'},
+  ];
+  kpis.innerHTML = cards.map(c=>`<div class="kpi" style="--kpi-color:${c.color}"><div class="lbl">${c.lbl}</div><div class="val">${c.val}</div><div class="sub">${c.sub}</div></div>`).join('');
+
+  if(!linhas.length){ vazio(!document.getElementById('dPaleteCol').value ? 'Selecione a coluna da etiqueta mãe na aba Descer paletes para conferir divergências' : 'Nenhuma posição com etiquetas mãe divergentes encontrada'); return; }
+  tbody.innerHTML = linhas.map(r=>rowDivergHtml(r)).join('');
+}
+
+document.getElementById('dgSearch').addEventListener('input', renderDiverg);
+
+document.getElementById('btnPrintDiverg').addEventListener('click', ()=>{
+  const linhas = divergFiltered();
+  if(!linhas.length){ alert('Nada para imprimir.'); return; }
+  const ordenadas = linhas.slice().sort((a,b)=> String(a.end).localeCompare(String(b.end),'pt-BR',{numeric:true}));
+  document.getElementById('divergTbody').innerHTML = ordenadas.map(r=>rowDivergHtml(r)).join('');
+  document.getElementById('printHeadDiverg').innerHTML =
+    `<b>Posições com mais de uma etiqueta mãe</b> · ${new Date().toLocaleString('pt-BR')} · ${diverg.rows.length} endereço(s) · ordenado pelo endereço`;
+  document.body.classList.add('printing');
+  const fim = ()=>{ document.body.classList.remove('printing'); window.removeEventListener('afterprint', fim); renderDiverg(); };
+  window.addEventListener('afterprint', fim);
+  window.print();
+});
+
+document.getElementById('btnExportDiverg').addEventListener('click', ()=>{
+  const linhas = divergFiltered();
+  if(!linhas.length){ alert('Nada para exportar. Importe o Estoque e selecione a coluna de etiqueta mãe na aba Descer paletes.'); return; }
+  const out = [['Endereco','Etiquetas no endereco','Pecas','Qtd total','Caixas total','Data ref. mais antiga'].join(';')];
+  linhas.forEach(r=>{
+    out.push([r.end, r.nDistintas, r.pecas.join(' | '), r.qtd, r.caixas, fmtData(r.dataMin)]
+      .map(v=>String(v??'').replace(/;/g,',')).join(';'));
+  });
+  const blob = new Blob(['\uFEFF'+out.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='etiquetas_divergentes.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
