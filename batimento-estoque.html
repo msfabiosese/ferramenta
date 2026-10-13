@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batimento de Estoque — Oracle × Plus</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#667085;--bd:#dde1e8;--ac:#1f5fbf;--ok:#1a7f4b;--pm:#b45309;--pn:#c0262d;--so:#6b3fb5;--sp:#0e7490}
+@media(prefers-color-scheme:dark){:root{--bg:#14171d;--card:#1d222b;--tx:#e8ebf0;--mut:#98a2b3;--bd:#323946;--ac:#6ea3f5;--ok:#4fcf8a;--pm:#f0a050;--pn:#f27a7f;--so:#b79af0;--sp:#4fc3de}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--bd)}
+header h1{font-size:18px;margin:0}header span{color:var(--mut);flex:1}
+main{max-width:1250px;margin:0 auto;padding:18px}
+button,select,input{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}button:hover{border-color:var(--ac)}button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.files{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dz{display:block;background:var(--card);border:2px dashed var(--bd);border-radius:10px;padding:16px;cursor:pointer}
+.dz:hover,.dz.drag{border-color:var(--ac)}.dz.ok{border-style:solid;border-color:var(--ok)}.dz b{display:block}.dz span{color:var(--mut);font-size:13px}.dz.err span{color:var(--pn)}
+.al{margin:12px 0 0;padding:9px 12px;border-radius:8px;background:var(--card);border-left:4px solid var(--pm)}.al.i{border-color:var(--ac);color:var(--mut)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.cd{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left}.cd.on{outline:2px solid var(--ac)}
+.cd b{display:block;font-size:22px}.cd small{color:var(--mut)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}.bar .sp{flex:1}
+.tw{background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:auto;max-height:68vh}
+table{border-collapse:collapse;width:100%}th,td{padding:7px 10px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--card);font-size:12px;text-transform:uppercase;color:var(--mut);z-index:1}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}td.m{font-family:ui-monospace,Consolas,monospace;user-select:all}.tg{padding:0 6px;border:0;background:none}
+tr.r:hover{background:color-mix(in srgb,var(--ac) 8%,transparent)}.pos{color:var(--pm)}.neg{color:var(--pn)}
+.b{padding:2px 8px;border-radius:99px;font-size:12px;white-space:nowrap;border:1px solid currentColor}
+.b.ok{color:var(--ok)}.b.p_mai{color:var(--pm)}.b.p_men{color:var(--pn)}.b.so_o{color:var(--so)}.b.so_p{color:var(--sp)}
+.det td{background:color-mix(in srgb,var(--mut) 8%,transparent);font-size:13px}small{color:var(--mut)}
+dialog{width:min(900px,95vw);max-height:90vh;border:1px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx);padding:0}
+dialog::backdrop{background:#0008}.dh{display:flex;align-items:center;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:2}.dh b{flex:1;font-size:16px}
+.dbody{padding:6px 18px 18px}.dbody h3{margin:18px 0 6px}.dbody p{color:var(--mut);margin:0 0 8px}.dbody input{width:100%}.dbody table input,.dbody table select{width:100%}
+</style>
+</head>
+<body>
+<header><h1>Batimento de Estoque</h1><span>Oracle × Plus · subinventories 7112 / 7212 / 7312+7315</span><button id="bCfg">⚙ Configurações</button></header>
+<main>
+ <div class="files">
+  <label class="dz" id="dz-ora"><input type="file" hidden accept=".tsv,.txt,.csv"><b>1 · Oracle (TSV)</b><span>Clique ou arraste o arquivo de saldo do Oracle</span></label>
+  <label class="dz" id="dz-plus"><input type="file" hidden accept=".csv,.txt,.tsv"><b>2 · Plus (CSV)</b><span>Clique ou arraste o arquivo de saldo por endereço</span></label>
+ </div>
+ <div id="alerts"></div>
+ <div id="out" hidden>
+  <div class="cards" id="cards"></div>
+  <div class="bar"><span id="chips"></span><select id="fSt"><option value="div">Somente divergências</option><option value="">Todos</option><option value="ok">OK</option><option value="p_mai">Plus maior</option><option value="p_men">Plus menor</option><option value="so_o">Só no Oracle</option><option value="so_p">Só no Plus</option></select><input id="fQ" placeholder="Buscar item ou descrição…"><span class="sp"></span><small id="cnt"></small><button id="bExp">⬇ Exportar CSV</button></div>
+  <div class="tw"><table><thead><tr><th></th><th>Sub</th><th>Item</th><th>Descrição</th><th>UN</th><th class="n">Oracle</th><th class="n">Plus</th><th class="n">Dif. (Plus−Oracle)</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <div class="bar" style="margin-top:10px"><button id="bMore" hidden>Mostrar mais</button></div>
+ </div>
+</main>
+
+<dialog id="dlg"><div class="dh"><b>Configurações</b><button id="bClose">Fechar</button></div><div class="dbody" id="cfg"></div></dialog>
+
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='batimento_estoque_cfg_v2',TOL=0.001,rd=x=>Math.round(x*1e6)/1e6,fmt=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:4});
+const LBL={ok:'OK',p_mai:'Plus maior',p_men:'Plus menor',so_o:'Só no Oracle',so_p:'Só no Plus'};
+
+// ===== Configuração padrão (itens controlados por tubo: c=código, d=descrição, k=kg por tubo) =====
+const DEF={subs:['7112','7212','7312+7315'],
+rules:[{t:'prefix',v:'1',d:'7312+7315'},{t:'prefix',v:'3',d:'7112'},{t:'prefix',v:'4',d:'7212'},{t:'exact',v:'Gestao de Estoque',d:'7312+7315'}],
+tubes:[
+{c:'2208J1284',d:'JUNTA DE SILICONE * DOW CORNING 844 *',k:0.431},{c:'VOLVO8716744',d:'GRAXA',k:16},
+{c:'990151',d:'PASTA DE TRAVAMENTO-TORQUE MEDIO',k:0.25},{c:'990022',d:'TB1305 PASTA DE TRAVAMENTO-TORQUE ALTO',k:0.25},
+{c:'2297V9356',d:'ADHESIVE-USE AS REQD',k:0.272},{c:'2297T8626',d:'PASTA DE TRAVAMENTO *LOCTITE 243*',k:0.25},
+{c:'2297N8620',d:'JUNTA DE SILICONE * DOW CORNING 7091 *',k:0.44},{c:'2297J6926',d:'PASTA DE VEDACAO - LOCTITE 574',k:0.275},
+{c:'2297E9157',d:'LOCTITE (OZS)',k:0.25},{c:'1199P4072',d:'GRAXA - RENOLIT SI 708',k:5},{c:'1199G4193',d:'GRAXA',k:1},
+{c:'076786',d:'TB3929E ADESIVO ESTRUTURAL',k:0.25},{c:'076785',d:'TB3924E ADESIVO ESTRUTURAL',k:0.25},
+{c:'076703',d:'TRAVA QUIMICA-LOCTITE 680 (EMBALAGEM 250 ML)',k:0.25}]};
+const clone=o=>JSON.parse(JSON.stringify(o));
+let cfg=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.subs&&s.rules&&s.tubes)return s;
+ const o=JSON.parse(localStorage.getItem('batimento_estoque_cfg_v1')); // migra config antiga: 7312 -> 7312+7315
+ if(o&&o.subs&&o.rules&&o.tubes){const m=x=>x=='7312'?'7312+7315':x;return{subs:o.subs.map(m),rules:o.rules.map(r=>({...r,d:m(r.d)})),tubes:o.tubes}}}catch(e){}return clone(DEF)})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}};
+
+// ===== Leitura de arquivos =====
+const dec=b=>{const u=new Uint8Array(b);try{return new TextDecoder('utf-8',{fatal:true}).decode(u).replace(/^\uFEFF/,'')}catch(e){return new TextDecoder('windows-1252').decode(u)}};
+function parse(t){
+ const h=t.split('\n')[0],D=['\t',';',','].reduce((a,d)=>h.split(d).length>h.split(a).length?d:a,'\t'),rows=[];
+ let r=[],f='',q=false;
+ for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c=='"'&&f==='')q=true;else if(c==D){r.push(f);f=''}
+  else if(c=='\n'){r.push(f);rows.push(r);r=[];f=''}else if(c!='\r')f+=c}
+ if(f||r.length){r.push(f);rows.push(r)}return rows}
+const nk=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const SPEC={ora:{i:'item',s:'subinventory',q:'onhandqty',d:'itemdescription',u:'uom'},plus:{i:'pieza',s:'ubicacion',q:'cantidadtotal',d:'descripcion1'}};
+const num=s=>{s=String(s).trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0};
+const S={ora:null,plus:null},FN={};
+async function loadFile(kind,file){
+ const dz=$('#dz-'+kind),sp=dz.querySelector('span');
+ const rows=parse(dec(await file.arrayBuffer())),H=(rows[0]||[]).map(nk),c={};
+ for(const k in SPEC[kind])c[k]=H.indexOf(SPEC[kind][k]);
+ const miss=['i','s','q'].filter(k=>c[k]<0);
+ if(miss.length){S[kind]=null;dz.className='dz err';sp.textContent='Colunas não encontradas ('+miss.map(k=>SPEC[kind][k]).join(', ')+'). Cabeçalho lido: '+(rows[0]||[]).join(' | ');run();return}
+ S[kind]=rows.slice(1).filter(r=>(r[c.i]||'').trim()).map(r=>({i:r[c.i].trim().toUpperCase(),s:(r[c.s]||'').trim(),q:num(r[c.q]),d:c.d>=0?(r[c.d]||'').trim():'',u:c.u>=0?(r[c.u]||'').trim():''}));
+ dz.className='dz ok';sp.textContent=file.name+' · '+fmt(S[kind].length)+' linhas';run()}
+for(const k of['ora','plus']){const dz=$('#dz-'+k);
+ dz.querySelector('input').onchange=e=>e.target.files[0]&&loadFile(k,e.target.files[0]);
+ dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag')};dz.ondragleave=()=>dz.classList.remove('drag');
+ dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag');e.dataTransfer.files[0]&&loadFile(k,e.dataTransfer.files[0])}}
+
+// ===== Cálculo =====
+function resolve(loc){ // null = sem mapeamento, '' = ignorar, senão código do sub
+ const L=loc.toUpperCase();
+ let r=cfg.rules.find(r=>r.t=='exact'&&r.v.trim().toUpperCase()==L);
+ if(!r)r=cfg.rules.filter(r=>r.t=='prefix'&&r.v&&L.startsWith(r.v.toUpperCase())).sort((a,b)=>b.v.length-a.v.length)[0];
+ if(!r)return null;if(!r.d)return'';return cfg.subs.includes(r.d)?r.d:null}
+let R=null;
+function compute(){
+ const M=new Map(),tube=new Map(cfg.tubes.map(t=>[t.c.trim().toUpperCase(),t.k])),ign={},seen={},un={};let oIn=0;
+ const get=(s,i)=>{const k=s+'|'+i;let e=M.get(k);if(!e){e={s,i,d:'',u:'',o:0,p:0,tb:0,loc:{},ho:0,hp:0};M.set(k,e)}return e};
+ for(const r of S.ora){const s=cfg.subs.find(x=>x.split('+').some(p=>r.s.toUpperCase().startsWith(p.trim())));
+  if(!s){ign[r.s]=(ign[r.s]||0)+1;continue}
+  oIn++;seen[s]=1;const e=get(s,r.i);e.ho=1;e.o+=r.q;e.u=r.u||e.u;e.d=r.d||e.d}
+ for(const r of S.plus){const s=resolve(r.s);
+  if(s===null){const u=un[r.s]||(un[r.s]={n:0,q:0});u.n++;u.q+=r.q;continue}
+  if(s==='')continue;
+  const e=get(s,r.i),k=tube.get(r.i);e.hp=1;e.d=e.d||r.d;e.loc[r.s]=(e.loc[r.s]||0)+r.q;
+  if(k!=null){e.tube=1;e.tb+=r.q;e.p+=r.q*k}else e.p+=r.q}
+ const rows=[...M.values()].map(e=>{e.o=rd(e.o);e.p=rd(e.p);e.df=rd(e.p-e.o);
+  e.st=Math.abs(e.df)<=TOL?'ok':!e.hp?'so_o':!e.ho?'so_p':e.df>0?'p_mai':'p_men';return e});
+ rows.sort((a,b)=>(a.st=='ok')-(b.st=='ok')||Math.abs(b.df)-Math.abs(a.df)||a.i.localeCompare(b.i));
+ R={rows,un,ign,seen,oIn}}
+
+// ===== Tela =====
+const V={sub:'',st:'div',q:'',lim:300,open:new Set(),stOn:''};
+function run(){
+ if(!S.ora||!S.plus){$('#out').hidden=true;$('#alerts').innerHTML='';return}
+ compute();$('#out').hidden=false;render();if($('#dlg').open)renderUn()}
+const filtered=()=>{const q=V.q.trim().toUpperCase();
+ return R.rows.filter(e=>(!V.sub||e.s==V.sub)&&(V.st=='div'?e.st!='ok':!V.st||e.st==V.st)&&(!q||e.i.includes(q)||e.d.toUpperCase().includes(q)))};
+function render(){
+ const al=[],un=Object.entries(R.un),uq=un.reduce((a,[,v])=>a+v.q,0);
+ if(un.length)al.push(`<div class="al"><b>${un.length} posição(ões) do Plus sem mapeamento</b> (${fmt(uq)} un.) ficam fora do batimento. <button data-open>Configurar</button></div>`);
+ for(const s of cfg.subs)if(!R.seen[s])al.push(`<div class="al">Nenhuma linha do sub <b>${esc(s)}</b> no arquivo do Oracle — os itens do Plus nessa zona aparecerão como “Só no Plus”. Confira se a exportação do Oracle incluiu esse sub.</div>`);
+ const ig=Object.entries(R.ign).map(([k,v])=>`${esc(k||'(vazio)')} (${fmt(v)})`).join(', ');
+ al.push(`<div class="al i">Oracle: ${fmt(R.oIn)} de ${fmt(S.ora.length)} linhas nos subs considerados.${ig?' Ignorados: '+ig+'.':''}</div>`);
+ $('#alerts').innerHTML=al.join('');
+ const base=R.rows.filter(e=>!V.sub||e.s==V.sub),cn=k=>base.filter(e=>e.st==k).length;
+ const cards=[['','Itens comparados',base.length],['ok','OK',cn('ok')],['p_mai','Plus maior',cn('p_mai')],['p_men','Plus menor',cn('p_men')],['so_o','Só no Oracle',cn('so_o')],['so_p','Só no Plus',cn('so_p')]];
+ $('#cards').innerHTML=cards.map(([k,l,n])=>`<button class="cd ${V.st==k&&k?'on':''}" data-st="${k}"><b>${fmt(n)}</b><small>${l}</small></button>`).join('');
+ $('#chips').innerHTML=['',...cfg.subs].map(s=>{const n=R.rows.filter(e=>(!s||e.s==s)&&e.st!='ok').length;return`<button class="${V.sub==s?'on':''}" data-sub="${s}">${s||'Todos'} <small>${n} div.</small></button>`}).join(' ');
+ $('#fSt').value=V.st;
+ const f=filtered(),sh=f.slice(0,V.lim);
+ $('#cnt').textContent=`${fmt(f.length)} item(ns)`;$('#bMore').hidden=f.length<=V.lim;
+ $('#tb').innerHTML=sh.map(e=>{const k=e.s+'|'+e.i,u=e.u||(e.tube?'KG':'');
+  let h=`<tr class="r"><td><button class="tg" data-k="${esc(k)}" title="Ver posições no Plus">${V.open.has(k)?'▾':'▸'}</button></td><td>${e.s}</td><td class="m">${esc(e.i)}</td><td>${esc(e.d)}</td><td>${esc(u)}</td><td class="n">${fmt(e.o)}</td><td class="n">${fmt(e.p)}${e.tube?` <small>(${fmt(e.tb)} tubos)</small>`:''}</td><td class="n ${e.df>0?'pos':'neg'}">${e.df?(e.df>0?'+':'')+fmt(e.df):'0'}</td><td><span class="b ${e.st}">${LBL[e.st]}</span></td></tr>`;
+  if(V.open.has(k)){const l=Object.entries(e.loc);h+=`<tr class="det"><td></td><td></td><td colspan="7"><b>Posições no Plus:</b> ${l.length?l.map(([p,q])=>`${esc(p)}: ${fmt(q)}${e.tube?' tubos':''}`).join(' · '):'nenhuma'}</td></tr>`}
+  return h}).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--mut);padding:24px">Nenhum item para o filtro atual.</td></tr>'}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-st],[data-sub],[data-k],[data-open]');if(!t)return;
+ if(t.dataset.open!==undefined){openCfg();return}
+ if(t.dataset.st!==undefined)V.st=V.st==t.dataset.st?'div':t.dataset.st;
+ if(t.dataset.sub!==undefined)V.sub=t.dataset.sub;
+ if(t.dataset.k){V.open.has(t.dataset.k)?V.open.delete(t.dataset.k):V.open.add(t.dataset.k)}
+ V.lim=300;render()});
+$('#fSt').onchange=e=>{V.st=e.target.value;V.lim=300;render()};
+$('#fQ').oninput=e=>{V.q=e.target.value;V.lim=300;render()};
+$('#bMore').onclick=()=>{V.lim+=500;render()};
+$('#bExp').onclick=()=>{const n=x=>String(x).replace('.',','),q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ const L=['Sub;Item;Descrição;UN;Oracle;Plus;Diferença;Status;Tubos Plus;Posições Plus'];
+ for(const e of filtered())L.push([e.s,q(e.i),q(e.d),e.u||(e.tube?'KG':''),n(e.o),n(e.p),n(e.df),LBL[e.st],e.tube?n(e.tb):'',q(Object.entries(e.loc).map(([p,v])=>p+': '+n(v)).join(' | '))].join(';'));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+L.join('\r\n')],{type:'text/csv'}));
+ a.download='batimento_'+new Date().toISOString().slice(0,10)+'.csv';a.click()};
+
+// ===== Configurações =====
+const subOpts=(sel,ign=true)=>(ign?`<option value="" ${sel===''?'selected':''}>Ignorar</option>`:'')+cfg.subs.map(s=>`<option ${s==sel?'selected':''}>${esc(s)}</option>`).join('');
+function openCfg(){renderCfg();$('#dlg').showModal()}
+function renderCfg(){
+ $('#cfg').innerHTML=`<h3>Subinventories considerados</h3><p>Separe por vírgula. No Oracle, o sub é reconhecido pelo início do nome (ex.: 7312ALM → 7312). Use + para somar subs que vêm da mesma zona do Plus (ex.: 7312+7315).</p>
+ <input data-a="subs" value="${esc(cfg.subs.join(', '))}">
+ <h3>Regras de posição (Plus → sub do Oracle)</h3><p>Nome exato tem prioridade sobre prefixo. “Ignorar” tira a posição do batimento.</p>
+ <table><thead><tr><th style="width:140px">Tipo</th><th>Valor</th><th style="width:160px">Sub destino</th><th style="width:50px"></th></tr></thead><tbody>
+ ${cfg.rules.map((r,i)=>`<tr><td><select data-a="rule" data-i="${i}" data-f="t"><option value="prefix" ${r.t=='prefix'?'selected':''}>Começa com</option><option value="exact" ${r.t=='exact'?'selected':''}>Nome exato</option></select></td><td><input data-a="rule" data-i="${i}" data-f="v" value="${esc(r.v)}"></td><td><select data-a="rule" data-i="${i}" data-f="d">${subOpts(r.d)}</select></td><td><button data-a="delrule" data-i="${i}">✕</button></td></tr>`).join('')}
+ </tbody></table><p style="margin-top:8px"><button data-a="addrule">+ Nova regra</button></p>
+ <h3>Posições do Plus sem mapeamento</h3><div id="unBox"></div>
+ <h3>Itens controlados por tubo</h3><p>No Plus o saldo é em tubos; o batimento converte para kg (tubos × kg por tubo) antes de comparar com o Oracle.</p>
+ <table><thead><tr><th style="width:160px">Código</th><th>Descrição</th><th style="width:120px">kg / tubo</th><th style="width:50px"></th></tr></thead><tbody>
+ ${cfg.tubes.map((t,i)=>`<tr><td><input data-a="tube" data-i="${i}" data-f="c" value="${esc(t.c)}"></td><td><input data-a="tube" data-i="${i}" data-f="d" value="${esc(t.d)}"></td><td><input data-a="tube" data-i="${i}" data-f="k" value="${String(t.k).replace('.',',')}"></td><td><button data-a="deltube" data-i="${i}">✕</button></td></tr>`).join('')}
+ <tr><td><input id="nc" placeholder="Novo código"></td><td><input id="nd" placeholder="Descrição"></td><td><input id="nk" placeholder="kg/tubo"></td><td><button data-a="addtube">＋</button></td></tr>
+ </tbody></table><p style="margin-top:14px"><button data-a="reset">Restaurar padrões</button></p>`;
+ renderUn()}
+function renderUn(){const b=$('#unBox');if(!b)return;
+ if(!R){b.innerHTML='<p>Carregue os dois arquivos para listar as posições sem mapeamento.</p>';return}
+ const u=Object.entries(R.un).sort((a,b)=>b[1].q-a[1].q);
+ b.innerHTML=u.length?`<table><thead><tr><th>Posição</th><th class="n">Linhas</th><th class="n">Qtd. total</th><th style="width:160px">Sub destino</th></tr></thead><tbody>${u.map(([p,v])=>`<tr><td>${esc(p||'(sem posição)')}</td><td class="n">${fmt(v.n)}</td><td class="n">${fmt(v.q)}</td><td><select data-a="un" data-p="${esc(p)}"><option value="x">Escolher…</option>${subOpts('x')}</select></td></tr>`).join('')}</tbody></table>`:'<p>Todas as posições do Plus estão mapeadas.</p>'}
+const apply=()=>{save();run()};
+$('#cfg').addEventListener('change',e=>{const t=e.target,a=t.dataset.a,i=+t.dataset.i,f=t.dataset.f;
+ if(a=='subs'){cfg.subs=t.value.split(/[,;\s]+/).filter(Boolean);apply();renderCfg()}
+ else if(a=='rule'){cfg.rules[i][f]=f=='v'?t.value.trim():t.value;apply()}
+ else if(a=='tube'){const x=cfg.tubes[i];if(f=='k')x.k=num(t.value)||0;else x[f]=f=='c'?t.value.trim().toUpperCase():t.value;apply()}
+ else if(a=='un'&&t.value!='x'){cfg.rules.push({t:'exact',v:t.dataset.p,d:t.value});apply();renderCfg()}});
+$('#cfg').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const a=t.dataset.a,i=+t.dataset.i;
+ if(a=='delrule'){cfg.rules.splice(i,1)}else if(a=='addrule'){cfg.rules.push({t:'prefix',v:'',d:cfg.subs[0]||''})}
+ else if(a=='deltube'){cfg.tubes.splice(i,1)}
+ else if(a=='addtube'){const c=$('#nc').value.trim().toUpperCase(),k=num($('#nk').value);if(!c||!k)return alert('Informe código e kg por tubo.');
+  const x=cfg.tubes.find(z=>z.c.toUpperCase()==c);x?(x.k=k,x.d=$('#nd').value||x.d):cfg.tubes.push({c,d:$('#nd').value,k})}
+ else if(a=='reset'){if(!confirm('Restaurar mapeamento e lista de tubos para o padrão?'))return;cfg=clone(DEF)}
+ else return;apply();renderCfg()});
+$('#bCfg').onclick=openCfg;$('#bClose').onclick=()=>$('#dlg').close();
+</script>
+</body>
+</html>
